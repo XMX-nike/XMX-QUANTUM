@@ -335,9 +335,13 @@ input[type="range"]::-webkit-slider-thumb {
   .hidden-mobile { display: none !important; }
 
   /* Grids: Single column only */
-  .charts-grid-2, .charts-grid-3, .grid-2, .grid-3, .grid-4, .stats-grid { 
-    grid-template-columns: 1fr !important;
+  .charts-grid-2, .charts-grid-3, .grid-2, .grid-3, .grid-4, .stats-grid {
+    flex-direction: column !important;
     gap: 0.5rem;
+  }
+  .charts-grid-2 > *, .charts-grid-3 > *, .grid-2 > *, .grid-3 > *, .grid-4 > *, .stats-grid > * {
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
   }
   
   /* Cards: Full width, zero border radius on sides */
@@ -355,7 +359,8 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 @media (max-width: 480px) {
-  .stats-grid { grid-template-columns: 1fr !important; }
+  .stats-grid { flex-direction: column !important; }
+  .stats-grid > * { min-width: 0 !important; flex: 1 1 auto !important; }
 }
 
 /* ===== Bot Log Terminal ===== */
