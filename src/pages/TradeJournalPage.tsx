@@ -48,7 +48,7 @@ const TradeJournalPage: React.FC = () => {
       </div>
 
       {/* Summary Stats */}
-      <div className="stats-grid" style={{ gap: \'1rem\', marginBottom: \'1.25rem\' }}>
+      <div className="stats-grid" style={{ gap: '1rem', marginBottom: '1.25rem' }}>
         {[
           { label: 'Total Trades', value: filtered.length.toString(), color: 'var(--text-primary)' },
           { label: 'Net P&L', value: `${totalPnl >= 0 ? '+' : ''}$${totalPnl.toFixed(2)}`, color: totalPnl >= 0 ? 'var(--green)' : 'var(--red)' },

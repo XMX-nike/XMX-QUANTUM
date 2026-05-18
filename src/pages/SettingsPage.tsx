@@ -43,7 +43,7 @@ const SettingsPage: React.FC = () => {
 
       {/* Account Settings */}
       <Section icon={<User size={18} />} title="Account Settings" delay={0}>
-        <div className="grid-2" style={{ gap: \'1rem\' }}>
+        <div className="grid-2" style={{ gap: '1rem' }}>
           <div className="form-group">
             <label className="form-label">Broker</label>
             <input className="form-input" value={broker} onChange={e => setBroker(e.target.value)} />
@@ -62,7 +62,7 @@ const SettingsPage: React.FC = () => {
 
       {/* Trading Preferences */}
       <Section icon={<Shield size={18} />} title="Trading Preferences" delay={0.06}>
-        <div className="grid-2" style={{ gap: \'1rem\' }}>
+        <div className="grid-2" style={{ gap: '1rem' }}>
           <div className="form-group">
             <label className="form-label">Default SL (pips)</label>
             <input className="form-input" type="number" value={defaultSl} onChange={e => setDefaultSl(e.target.value)} />
@@ -85,7 +85,7 @@ const SettingsPage: React.FC = () => {
 
       {/* Risk Calculator */}
       <Section icon={<Calculator size={18} />} title="Risk Calculator" delay={0.1}>
-        <div className="grid-3" style={{ gap: \'1rem\', marginBottom: \'1rem\' }}>
+        <div className="grid-3" style={{ gap: '1rem', marginBottom: '1rem' }}>
           <div className="form-group">
             <label className="form-label">Lot Size</label>
             <input className="form-input" type="number" step="0.01" value={riskLot} onChange={e => setRiskLot(e.target.value)} />
@@ -99,7 +99,7 @@ const SettingsPage: React.FC = () => {
             <input className="form-input" type="number" value={riskTp} onChange={e => setRiskTp(e.target.value)} />
           </div>
         </div>
-        <div className="grid-3" style={{ gap: \'1rem\' }}>
+        <div className="grid-3" style={{ gap: '1rem' }}>
           {[
             { label: 'Potential Profit', value: `+$${potentialProfit.toFixed(2)}`, color: 'var(--green)' },
             { label: 'Potential Loss', value: `-$${potentialLoss.toFixed(2)}`, color: 'var(--red)' },

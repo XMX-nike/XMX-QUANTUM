@@ -92,7 +92,7 @@ const BotControlPage: React.FC = () => {
       {/* Trading Mode */}
       <motion.div className="card" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }} style={{ marginBottom: '1rem' }}>
         <div className="section-title" style={{ marginBottom: '1rem' }}>Trading Mode</div>
-        <div className="stats-grid" style={{ gap: \'0.75rem\' }}>
+        <div className="stats-grid" style={{ gap: '0.75rem' }}>
           {BOT_MODES.map(m => (
             <button key={m.id} onClick={() => setBotMode(m.label)}
               style={{
@@ -146,7 +146,7 @@ const BotControlPage: React.FC = () => {
                 <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>Custom SL / TP</span>
               </label>
               {customSlTp && (
-                <div className="grid-2" style={{ gap: \'0.75rem\', marginTop: \'0.75rem\' }}>
+                <div className="grid-2" style={{ gap: '0.75rem', marginTop: '0.75rem' }}>
                   <div className="form-group"><label className="form-label">Stop Loss (pips)</label><input className="form-input" type="number" value={sl} onChange={e => setSl(e.target.value)} placeholder="e.g. 30" /></div>
                   <div className="form-group"><label className="form-label">Take Profit (pips)</label><input className="form-input" type="number" value={tp} onChange={e => setTp(e.target.value)} placeholder="e.g. 60" /></div>
                 </div>

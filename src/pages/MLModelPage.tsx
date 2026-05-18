@@ -31,7 +31,7 @@ const MLModelPage: React.FC = () => {
       </div>
 
       {/* Status cards */}
-      <div className="stats-grid" style={{ gap: \'1rem\', marginBottom: \'1.25rem\' }}>
+      <div className="stats-grid" style={{ gap: '1rem', marginBottom: '1.25rem' }}>
         {[
           { label: 'Current Accuracy', value: `${SUMMARY_STATS.mlAccuracy}%`, color: 'var(--green)' },
           { label: 'Training Progress', value: `${SUMMARY_STATS.mlTrainingCount}/250`, color: 'var(--cyan)' },

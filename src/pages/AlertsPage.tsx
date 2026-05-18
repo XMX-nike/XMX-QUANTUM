@@ -59,7 +59,7 @@ const AlertsPage: React.FC = () => {
       </div>
 
       {/* Summary cards */}
-      <div className="stats-grid" style={{ gap: \'1rem\', marginBottom: \'1.25rem\' }}>
+      <div className="stats-grid" style={{ gap: '1rem', marginBottom: '1.25rem' }}>
         {[
           { label: 'Total', value: filtered.length, color: 'var(--text-primary)' },
           { label: 'Critical', value: filtered.filter(a => a.severity === 'critical').length, color: 'var(--red)' },

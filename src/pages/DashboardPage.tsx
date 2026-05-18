@@ -172,7 +172,7 @@ const DashboardPage: React.FC = () => {
       </div>
 
       {/* Charts Row 1 */}
-      <div className="charts-grid-3" style={{ gap: \'1rem\', marginBottom: \'1rem\' }}>
+      <div className="charts-grid-3" style={{ gap: '1rem', marginBottom: '1rem' }}>
         {/* Equity Curve */}
         <motion.div className="card" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
           <div className="section-header">

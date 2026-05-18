@@ -209,7 +209,7 @@ const LandingPage: React.FC = () => {
           <h2 style={{ fontSize: '2.2rem', fontWeight: 900, marginBottom: '0.75rem' }}>Everything You Need to <span className="gradient-text">Dominate the Markets</span></h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '1rem' }}>Built for serious traders who demand professional-grade tools without institutional fees.</p>
         </motion.div>
-        <div className="stats-grid" style={{ gap: \'1.5rem\' }}>
+        <div className="stats-grid" style={{ gap: '1.5rem' }}>
           {FEATURES.map(({ icon: Icon, title, desc }, i) => (
             <motion.div key={title} className="card" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}
               style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
@@ -230,7 +230,7 @@ const LandingPage: React.FC = () => {
             <h2 style={{ fontSize: '2.2rem', fontWeight: 900, marginBottom: '0.75rem' }}>Simple, <span className="gradient-text">Transparent Pricing</span></h2>
             <p style={{ color: 'var(--text-secondary)' }}>No hidden fees. Cancel anytime. 14-day money-back guarantee.</p>
           </motion.div>
-          <div className="stats-grid" style={{ gap: \'1.5rem\' }}>
+          <div className="stats-grid" style={{ gap: '1.5rem' }}>
             {PRICING.map(({ tier, price, featured, features }, i) => (
               <motion.div key={tier} className={`pricing-card ${featured ? 'featured' : ''}`} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
                 style={{ transform: featured ? 'scale(1.04)' : undefined }}>
@@ -260,7 +260,7 @@ const LandingPage: React.FC = () => {
           <h2 style={{ fontSize: '2.2rem', fontWeight: 900, marginBottom: '0.75rem' }}>Trusted by <span className="gradient-text">5,000+ Traders</span></h2>
           <p style={{ color: 'var(--text-secondary)' }}>Real results from real traders using XMX-QUANTUM.</p>
         </motion.div>
-        <div className="stats-grid" style={{ gap: \'1.5rem\' }}>
+        <div className="stats-grid" style={{ gap: '1.5rem' }}>
           {TESTIMONIALS.map(({ name, role, avatar, text, stars }, i) => (
             <motion.div key={name} className="card" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
               <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '0.75rem' }}>
@@ -317,7 +317,7 @@ const LandingPage: React.FC = () => {
       {/* Footer */}
       <footer style={{ background: 'var(--bg-card)', borderTop: '1px solid var(--border)', padding: '3rem 2rem 2rem' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <div className="stats-grid" style={{ gap: \'2rem\', marginBottom: \'2rem\' }}>
+          <div className="stats-grid" style={{ gap: '2rem', marginBottom: '2rem' }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
                 <div style={{ width: 28, height: 28, background: 'linear-gradient(135deg, var(--cyan), #0066cc)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '0.7rem', color: '#000' }}>XQ</div>

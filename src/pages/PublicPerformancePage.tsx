@@ -52,7 +52,7 @@ const PublicPerformancePage: React.FC = () => {
         </motion.div>
 
         {/* Stats Grid */}
-        <div className="stats-grid" style={{ gap: \'1rem\', marginBottom: \'1.5rem\' }}>
+        <div className="stats-grid" style={{ gap: '1rem', marginBottom: '1.5rem' }}>
           {[
             { label: 'Total Return', value: `+${totalReturn.toFixed(1)}%`, color: 'var(--green)', icon: TrendingUp },
             { label: 'Win Rate', value: `${SUMMARY_STATS.winRate}%`, color: 'var(--cyan)', icon: Award },

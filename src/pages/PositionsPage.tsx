@@ -66,7 +66,7 @@ const PositionsPage: React.FC = () => {
   return (
     <div className="page-wrapper">
       {/* Summary */}
-      <div className="stats-grid" style={{ gap: \'1rem\', marginBottom: \'1.25rem\' }}>
+      <div className="stats-grid" style={{ gap: '1rem', marginBottom: '1.25rem' }}>
         {[
           { label: 'Open Positions', value: positions.length.toString(), color: 'var(--cyan)' },
           { label: 'Total Float P&L', value: `${totalPnl >= 0 ? '+' : ''}$${totalPnl.toFixed(2)}`, color: totalPnl >= 0 ? 'var(--green)' : 'var(--red)' },

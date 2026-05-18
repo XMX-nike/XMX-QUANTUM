@@ -42,7 +42,7 @@ const SignalsPage: React.FC = () => {
       </div>
 
       {/* Stats row */}
-      <div className="stats-grid" style={{ gap: \'1rem\', marginBottom: \'1.25rem\' }}>
+      <div className="stats-grid" style={{ gap: '1rem', marginBottom: '1.25rem' }}>
         {[
           { label: 'Total Signals', value: filtered.length.toString(), color: 'var(--cyan)' },
           { label: 'BUY Signals', value: filtered.filter(s => s.direction === 'BUY').length.toString(), color: 'var(--green)' },
@@ -57,7 +57,7 @@ const SignalsPage: React.FC = () => {
       </div>
 
       {/* Signals Grid */}
-      <div className="stats-grid" style={{ gap: \'1rem\' }}>
+      <div className="stats-grid" style={{ gap: '1rem' }}>
         <AnimatePresence>
           {filtered.map((sig, i) => (
             <motion.div

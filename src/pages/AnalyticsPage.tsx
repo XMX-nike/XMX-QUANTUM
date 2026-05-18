@@ -56,7 +56,7 @@ const AnalyticsPage: React.FC = () => {
       <h1 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '1.25rem' }}>Analytics & Performance</h1>
 
       {/* Summary Stats */}
-      <div className="stats-grid" style={{ gap: \'1rem\', marginBottom: \'1.25rem\' }}>
+      <div className="stats-grid" style={{ gap: '1rem', marginBottom: '1.25rem' }}>
         {SUMMARY.map(({ label, value, color }) => (
           <motion.div key={label} className="stat-card" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
             <div className="label">{label}</div>
