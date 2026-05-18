@@ -5,14 +5,13 @@
       <stop offset="50%" stop-color="#7c3aed"/>
       <stop offset="100%" stop-color="#a855f7"/>
     </linearGradient>
-    <linearGradient id="qxbg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0a1628"/>
-      <stop offset="100%" stop-color="#1e1b4b"/>
-    </linearGradient>
   </defs>
-  <rect x="4" y="4" width="92" height="92" rx="22" ry="22" fill="url(#qxbg)" stroke="url(#qxg)" stroke-width="1.5"/>
-  <path d="M 78.191 39.739 A 30 30 0 1 0 55.210 20.456" stroke="url(#qxg)" stroke-width="8.5" stroke-linecap="round" fill="none"/>
-  <line x1="28" y1="28" x2="50" y2="50" stroke="url(#qxg)" stroke-width="8.5" stroke-linecap="round"/>
-  <line x1="50" y1="50" x2="78" y2="78" stroke="url(#qxg)" stroke-width="8.5" stroke-linecap="round"/>
-  <line x1="72" y1="28" x2="28" y2="72" stroke="url(#qxg)" stroke-width="8.5" stroke-linecap="round"/>
+  <!-- Q Ring Arc (gap at bottom-right 280°–340°) -->
+  <path d="M 81.950 38.371 A 34 34 0 1 0 55.904 16.516" stroke="url(#qxg)" stroke-width="9" stroke-linecap="round" fill="none"/>
+  <!-- X upper-left arm -->
+  <line x1="26" y1="26" x2="50" y2="50" stroke="url(#qxg)" stroke-width="9" stroke-linecap="round"/>
+  <!-- X tail (Q tail through gap) -->
+  <line x1="50" y1="50" x2="78" y2="78" stroke="url(#qxg)" stroke-width="9" stroke-linecap="round"/>
+  <!-- X second diagonal -->
+  <line x1="74" y1="26" x2="26" y2="74" stroke="url(#qxg)" stroke-width="9" stroke-linecap="round"/>
 </svg>
