@@ -1,18 +1,18 @@
-<svg width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="64" height="64" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="fg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%"   stop-color="#00d4ff"/>
-      <stop offset="45%"  stop-color="#7c3aed"/>
+    <linearGradient id="qxg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00d4ff"/>
+      <stop offset="50%" stop-color="#7c3aed"/>
       <stop offset="100%" stop-color="#a855f7"/>
     </linearGradient>
+    <linearGradient id="qxbg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a1628"/>
+      <stop offset="100%" stop-color="#1e1b4b"/>
+    </linearGradient>
   </defs>
-  <!-- Q Ring Arc: center(50,50) r=36, gap 290deg-340deg -->
-  <path d="M 83.829 37.687 A 36 36 0 1 0 62.313 16.171"
-        stroke="url(#fg)" stroke-width="9" stroke-linecap="square" fill="none"/>
-  <!-- X top-left arm -->
-  <line x1="30" y1="30" x2="50" y2="50" stroke="url(#fg)" stroke-width="9" stroke-linecap="square"/>
-  <!-- X tail (Q tail) -->
-  <line x1="50" y1="50" x2="77.73" y2="77.73" stroke="url(#fg)" stroke-width="9" stroke-linecap="square"/>
-  <!-- X second diagonal -->
-  <line x1="70" y1="30" x2="30" y2="70" stroke="url(#fg)" stroke-width="9" stroke-linecap="square"/>
+  <rect x="4" y="4" width="92" height="92" rx="22" ry="22" fill="url(#qxbg)" stroke="url(#qxg)" stroke-width="1.5"/>
+  <path d="M 78.191 39.739 A 30 30 0 1 0 55.210 20.456" stroke="url(#qxg)" stroke-width="8.5" stroke-linecap="round" fill="none"/>
+  <line x1="28" y1="28" x2="50" y2="50" stroke="url(#qxg)" stroke-width="8.5" stroke-linecap="round"/>
+  <line x1="50" y1="50" x2="78" y2="78" stroke="url(#qxg)" stroke-width="8.5" stroke-linecap="round"/>
+  <line x1="72" y1="28" x2="28" y2="72" stroke="url(#qxg)" stroke-width="8.5" stroke-linecap="round"/>
 </svg>

@@ -56,7 +56,14 @@ export const TradingProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [fearGreed, setFearGreed] = useState(SUMMARY_STATS.fearGreedIndex);
   const [botRunning, setBotRunning] = useState(true);
   const [botMode, setBotModeState] = useState('Plug and Play');
-  const [darkMode, setDarkMode] = useState(true);
+  const [darkMode, setDarkMode] = useState<boolean>(() => {
+    // Check localStorage first
+    const saved = localStorage.getItem('xmx-theme');
+    if (saved !== null) return saved === 'dark';
+    // First visit: respect prefers-color-scheme, but default to dark if no preference
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    return prefersDark !== false; // default dark
+  });
   const [sessionStart] = useState(SUMMARY_STATS.botSessionStart);
 
   // Use refs so interval closure always has latest values without re-registering
@@ -213,13 +220,15 @@ export const TradingProvider: React.FC<{ children: React.ReactNode }> = ({ child
   }, []);
 
   const setBotMode = useCallback((mode: string) => setBotModeState(mode), []);
-  // Apply theme to document root so CSS variables take effect globally
+  // Apply theme to document root so CSS variables take effect globally + persist
   useEffect(() => {
     const root = document.documentElement;
     if (darkMode) {
       root.removeAttribute('data-theme');
+      localStorage.setItem('xmx-theme', 'dark');
     } else {
       root.setAttribute('data-theme', 'light');
+      localStorage.setItem('xmx-theme', 'light');
     }
   }, [darkMode]);
 

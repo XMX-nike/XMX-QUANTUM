@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, Filter, Trash2, CheckCheck } from 'lucide-react';
+import { Bell, Filter, Trash2, CheckCheck, TrendingUp, Anchor, AlertTriangle, Cpu } from 'lucide-react';
 import { useTrading } from '../context/TradingContext';
 
-const TYPE_ICONS: Record<string, string> = {
-  sentiment: '■', whale: '◆', manipulation: '⚠', signal: '◎',
+const TYPE_ICON_MAP: Record<string, React.ReactNode> = {
+  sentiment: <TrendingUp size={18} color="var(--cyan)" />,
+  whale: <Anchor size={18} color="var(--cyan)" />,
+  manipulation: <AlertTriangle size={18} color="var(--orange)" />,
+  signal: <Cpu size={18} color="var(--cyan)" />,
 };
 
 const AlertsPage: React.FC = () => {
@@ -92,7 +95,7 @@ const AlertsPage: React.FC = () => {
               onClick={() => markAlertRead(alert.id)}
             >
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-                <span style={{ fontSize: '1.25rem', flexShrink: 0 }}>{TYPE_ICONS[alert.type]}</span>
+                <span style={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>{TYPE_ICON_MAP[alert.type] ?? <Bell size={18} color="var(--cyan)" />}</span>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.3rem', flexWrap: 'wrap' }}>
                     <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{alert.title}</span>

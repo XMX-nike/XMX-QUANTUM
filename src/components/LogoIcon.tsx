@@ -3,13 +3,13 @@ import React from 'react';
 /**
  * LogoIcon — XMX-QUANTUM Q+X Monogram
  *
- * Geometry (viewBox 0 0 100 100):
- *   - Bold Q ring arc: radius 36, center (50,50), gap at bottom-right (290°–340°)
- *   - X stroke 1: top-left (30,30) → center (50,50) → tail exit (77.73,77.73)
- *     The tail exits through the Q ring gap — this IS the Q tail
- *   - X stroke 2: top-right (70,30) → bottom-left (30,70)
+ * Design:
+ *   - Rounded square container with subtle gradient border + glow
+ *   - Bold Q ring arc: radius 32, center (50,50), gap at bottom-right (280°–340°)
+ *   - X stroke 1: top-left (28,28) → center (50,50) → tail exit (78,78) (Q tail)
+ *   - X stroke 2: top-right (72,28) → bottom-left (28,72)
  *   - Single cyan→purple gradient across the entire mark
- *   - Square stroke caps for sharp geometric edges
+ *   - Round stroke caps for premium look
  */
 
 interface LogoIconProps {
@@ -45,6 +45,8 @@ const LogoIcon: React.FC<LogoIconProps> = ({
   const wm = wordmarkSize ?? Math.round(size * 0.5);
   // Use a unique gradient ID per size to avoid conflicts when multiple instances render
   const gradId = `qxg-${size}`;
+  const bgGradId = `qxbg-${size}`;
+  const glowId = `qxglow-${size}`;
 
   return (
     <div
@@ -68,72 +70,93 @@ const LogoIcon: React.FC<LogoIconProps> = ({
         style={{ flexShrink: 0, display: 'block' }}
       >
         <defs>
-          {/* Cyan top-left → purple bottom-right */}
+          {/* Main cyan → purple gradient */}
           <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%"   stopColor="#00d4ff" />
-            <stop offset="45%"  stopColor="#7c3aed" />
+            <stop offset="50%"  stopColor="#7c3aed" />
             <stop offset="100%" stopColor="#a855f7" />
           </linearGradient>
+          {/* Background gradient for container */}
+          <linearGradient id={bgGradId} x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%"   stopColor="#0a1628" />
+            <stop offset="100%" stopColor="#1e1b4b" />
+          </linearGradient>
+          {/* Glow filter */}
+          <filter id={glowId} x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="2.5" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          </filter>
         </defs>
+
+        {/* Rounded square container */}
+        <rect
+          x="4" y="4" width="92" height="92" rx="22" ry="22"
+          fill={`url(#${bgGradId})`}
+          stroke={`url(#${gradId})`}
+          strokeWidth="1.5"
+          opacity="0.9"
+        />
 
         {/*
           Q Ring Arc
-          Center: (50, 50), Radius: 36
-          Gap: 290° → 340° (50° gap at bottom-right, where the X tail exits)
-          Arc goes from 340° → 290° the long way (310° of arc)
+          Center: (50, 50), Radius: 30
+          Gap: 280° → 340° (60° gap at bottom-right, where the X tail exits)
+          Arc goes from 340° → 280° the long way (300° of arc)
 
           Arc start point (340°):
-            x = 50 + 36·cos(340°) = 50 + 36·0.93969 = 83.829
-            y = 50 + 36·sin(340°) = 50 + 36·(−0.34202) = 37.687
+            x = 50 + 30·cos(340°) = 50 + 30·0.93969 = 78.191
+            y = 50 + 30·sin(340°) = 50 + 30·(−0.34202) = 39.739
 
-          Arc end point (290°):
-            x = 50 + 36·cos(290°) = 50 + 36·0.34202 = 62.313
-            y = 50 + 36·sin(290°) = 50 + 36·(−0.93969) = 16.171
+          Arc end point (280°):
+            x = 50 + 30·cos(280°) = 50 + 30·0.17365 = 55.210
+            y = 50 + 30·sin(280°) = 50 + 30·(−0.98481) = 20.456
 
           SVG arc: large-arc-flag=1, sweep-flag=0 (counter-clockwise)
         */}
         <path
-          d="M 83.829 37.687 A 36 36 0 1 0 62.313 16.171"
+          d="M 78.191 39.739 A 30 30 0 1 0 55.210 20.456"
           stroke={`url(#${gradId})`}
-          strokeWidth="9"
-          strokeLinecap="square"
+          strokeWidth="8.5"
+          strokeLinecap="round"
           fill="none"
+          filter={`url(#${glowId})`}
         />
 
         {/*
-          X Stroke 1 — top-left arm: (30,30) → (50,50)
-          This is the upper-left arm of the X
+          X Stroke 1 — upper-left arm: (28,28) → (50,50)
         */}
         <line
-          x1="30" y1="30"
+          x1="28" y1="28"
           x2="50" y2="50"
           stroke={`url(#${gradId})`}
-          strokeWidth="9"
-          strokeLinecap="square"
+          strokeWidth="8.5"
+          strokeLinecap="round"
+          filter={`url(#${glowId})`}
         />
 
         {/*
-          X Stroke 1 — tail (Q tail): (50,50) → (77.73,77.73)
+          X Stroke 1 — Q tail: (50,50) → (78,78)
           Extends at 45° through the Q ring gap — this IS the Q's tail
-          77.73 = 50 + 27.73 where 27.73 ≈ 18px extension beyond the ring
         */}
         <line
-          x1="50"    y1="50"
-          x2="77.73" y2="77.73"
+          x1="50" y1="50"
+          x2="78" y2="78"
           stroke={`url(#${gradId})`}
-          strokeWidth="9"
-          strokeLinecap="square"
+          strokeWidth="8.5"
+          strokeLinecap="round"
+          filter={`url(#${glowId})`}
         />
 
         {/*
-          X Stroke 2 — full diagonal: top-right (70,30) → bottom-left (30,70)
+          X Stroke 2 — full diagonal: top-right (72,28) → bottom-left (28,72)
         */}
         <line
-          x1="70" y1="30"
-          x2="30" y2="70"
+          x1="72" y1="28"
+          x2="28" y2="72"
           stroke={`url(#${gradId})`}
-          strokeWidth="9"
-          strokeLinecap="square"
+          strokeWidth="8.5"
+          strokeLinecap="round"
+          filter={`url(#${glowId})`}
         />
       </svg>
 

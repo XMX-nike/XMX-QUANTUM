@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LineChart, Line, ResponsiveContainer } from 'recharts';
-import { TrendingUp, TrendingDown } from 'lucide-react';
+import { TrendingUp, TrendingDown, Inbox } from 'lucide-react';
 import { useTrading } from '../context/TradingContext';
 import type { Position } from '../data/mockData';
 
@@ -91,7 +91,7 @@ const PositionsPage: React.FC = () => {
         <div className="table-wrapper" style={{ border: 'none', borderRadius: 0 }}>
           {positions.length === 0 ? (
             <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-              <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>📭</div>
+              <div style={{ marginBottom: '0.75rem', display: 'flex', justifyContent: 'center' }}><Inbox size={40} color="var(--text-muted)" /></div>
               <div style={{ fontWeight: 600 }}>No open positions</div>
               <div style={{ fontSize: '0.82rem', marginTop: '0.25rem' }}>The bot will open positions when signals are detected</div>
             </div>

@@ -2,1073 +2,812 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  ArrowRight, Shield, Lock, Clock, Zap, BarChart2, Bot,
-  TrendingUp, Brain, Target, ChevronDown, ChevronUp,
-  Check, Gift, Menu, X, Sun, Moon, Sparkles,
-  Activity, BookOpen, DollarSign,
+  ArrowRight, Play, Clock, Lock, Activity, Zap, Shield,
+  BarChart3, Bot, TrendingUp, Bell, LineChart, Wallet,
+  ChevronDown, Check, Diamond, Sun, Moon, Menu, X,
+  Globe, Users, Target, Cpu, RefreshCw, Eye,
 } from 'lucide-react';
+import { useTrading } from '../context/TradingContext';
 import LogoIcon from '../components/LogoIcon';
+import ParticleBackground from '../components/ParticleBackground';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-type Theme = 'light' | 'dark';
+// ─── Typewriter Hook ───────────────────────────────────────────────────────────
+const PHRASES = [
+  'The AI Terminal That Executes While You Sleep.',
+  'Institutional Tools. Retail Access.',
+  'Markets Move. We Predict.',
+  'Quantum Speed. Human Edge.',
+  'Where Wall Street Meets Web3.',
+  "Engineered for Traders Who Don't Miss.",
+];
 
-// ─── Typewriter Hook ─────────────────────────────────────────────────────────
-function useTypewriter(texts: string[], speed = 50, pause = 2000) {
-  const [textIndex, setTextIndex] = useState(0);
+function useTypewriter(phrases: string[], typingSpeed = 45, deletingSpeed = 25, pauseMs = 2500, pauseBeforeMs = 400) {
   const [displayed, setDisplayed] = useState('');
+  const [phraseIdx, setPhraseIdx] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
-    const current = texts[textIndex];
-    let timeout: ReturnType<typeof setTimeout>;
-
-    if (!isDeleting && displayed.length < current.length) {
-      timeout = setTimeout(() => setDisplayed(current.slice(0, displayed.length + 1)), speed);
-    } else if (!isDeleting && displayed.length === current.length) {
-      timeout = setTimeout(() => setIsDeleting(true), pause);
-    } else if (isDeleting && displayed.length > 0) {
-      timeout = setTimeout(() => setDisplayed(current.slice(0, displayed.length - 1)), speed / 2);
-    } else if (isDeleting && displayed.length === 0) {
-      setIsDeleting(false);
-      setTextIndex((i) => (i + 1) % texts.length);
+    const current = phrases[phraseIdx];
+    if (isPaused) {
+      const t = setTimeout(() => {
+        setIsPaused(false);
+        setIsDeleting(prev => !prev);
+      }, isDeleting ? pauseBeforeMs : pauseMs);
+      return () => clearTimeout(t);
     }
-
-    return () => clearTimeout(timeout);
-  }, [displayed, isDeleting, textIndex, texts, speed, pause]);
+    if (!isDeleting) {
+      if (displayed.length < current.length) {
+        const t = setTimeout(() => setDisplayed(current.slice(0, displayed.length + 1)), typingSpeed);
+        return () => clearTimeout(t);
+      } else {
+        setIsPaused(true);
+      }
+    } else {
+      if (displayed.length > 0) {
+        const t = setTimeout(() => setDisplayed(current.slice(0, displayed.length - 1)), deletingSpeed);
+        return () => clearTimeout(t);
+      } else {
+        setIsDeleting(false);
+        setPhraseIdx(i => (i + 1) % phrases.length);
+      }
+    }
+  }, [displayed, phraseIdx, isDeleting, isPaused, phrases, typingSpeed, deletingSpeed, pauseMs, pauseBeforeMs]);
 
   return displayed;
 }
 
-// ─── Pricing Data ─────────────────────────────────────────────────────────────
+// ─── Features Data ─────────────────────────────────────────────────────────────
+const FEATURES = [
+  { icon: Cpu, title: 'Quantum AI Engine', desc: 'Multi-layer ML models trained on 10+ years of tick data. Pattern recognition that no human analyst can replicate at scale.', tag: 'CORE' },
+  { icon: Activity, title: 'Real-Time Sentiment', desc: 'Live feed of market sentiment from order flow, news, and on-chain data — synthesized into a single actionable signal.', tag: 'SIGNALS' },
+  { icon: Bot, title: 'Autonomous Execution', desc: '24/7 bot execution with sub-second latency. Set your parameters, walk away. The terminal never sleeps.', tag: 'AUTOMATION' },
+  { icon: BarChart3, title: 'Multi-Asset Coverage', desc: 'Forex, crypto, indices, and commodities — all in one terminal. 50+ instruments with unified risk management.', tag: 'COVERAGE' },
+  { icon: Shield, title: 'Institutional Risk Controls', desc: 'Dynamic position sizing, drawdown limits, correlation filters, and circuit breakers — the same controls hedge funds use.', tag: 'RISK' },
+  { icon: Bell, title: 'Precision Alerts', desc: 'Multi-channel alerts via Telegram, email, and in-app. Triggered by price action, pattern completion, or bot events.', tag: 'ALERTS' },
+  { icon: LineChart, title: 'Deep Analytics', desc: 'Full trade journal with performance attribution, win/loss analysis, and equity curve modeling across all strategies.', tag: 'ANALYTICS' },
+  { icon: TrendingUp, title: 'Signal Intelligence', desc: 'ML-scored signals with confidence ratings, backtested edge, and real-time performance tracking.', tag: 'SIGNALS' },
+  { icon: Globe, title: 'Telegram Integration', desc: 'Full two-way Telegram bot. Receive signals, approve trades, check positions, and control the bot — all from your phone.', tag: 'INTEGRATION' },
+];
+
+// ─── Pricing Data ──────────────────────────────────────────────────────────────
 const PLANS = [
   {
-    name: 'Basic',
-    tagline: 'Perfect for getting started with AI trading.',
-    monthly: 29,
-    annual: 23,
-    badge: null,
-    accent: '#64748b',
-    btnStyle: 'outline' as const,
-    features: [
-      '3 Instruments', '50 Trades/Month', 'Basic AI Signals',
-      'Email Alerts', 'Community Access', 'Mobile App',
-      'Basic Analytics', 'Trade Journal', 'Email Support', '14-Day Free Trial',
-    ],
+    name: 'Starter', price: 49, annualPrice: 39,
+    desc: 'For traders getting started with algorithmic execution.',
+    features: ['5 Active Positions', 'Basic AI Signals', 'Telegram Alerts', 'Trade Journal', 'Email Support'],
+    cta: 'Start Free Trial', popular: false, color: '#00d4ff',
   },
   {
-    name: 'Pro',
-    tagline: 'The complete toolkit for serious traders.',
-    monthly: 79,
-    annual: 63,
-    badge: 'Most Popular',
-    accent: '#a855f7',
-    btnStyle: 'solid' as const,
-    features: [
-      '6 Instruments', 'Unlimited Trades', 'Quantum AI Signals',
-      'Telegram Alerts', 'Analytics Dashboard', 'Bot Control',
-      'Trade Journal', 'Priority Support', 'ML Model Access',
-      'Backtesting Studio', 'Market Heatmap', 'Position Calculator', 'API Access',
-    ],
+    name: 'Pro', price: 99, annualPrice: 79,
+    desc: 'For serious traders who want institutional-grade tools.',
+    features: ['Unlimited Positions', 'Full AI Engine', 'Autonomous Bot', 'Advanced Analytics', 'Multi-Asset Coverage', 'Priority Support', 'Telegram Bot Control'],
+    cta: 'Start Free Trial', popular: true, color: '#a855f7',
   },
   {
-    name: 'Elite',
-    tagline: 'Institutional-grade power for professionals.',
-    monthly: 199,
-    annual: 159,
-    badge: 'Elite',
-    accent: '#f59e0b',
-    btnStyle: 'gold' as const,
-    features: [
-      'Everything in Pro', 'Custom Strategies', 'Dedicated Manager',
-      'White-label Option', 'Custom Instruments', 'SLA Guarantee',
-      'Direct AI Analysis', 'MT5 Cloud Bots', 'Free VPS Included',
-      'Voice AI Interaction', 'Unlimited MT5 Accounts', '24/7 Bot Monitoring', 'White-glove Support',
-    ],
+    name: 'Elite', price: 199, annualPrice: 159,
+    desc: 'For professional traders and small funds.',
+    features: ['Everything in Pro', 'Custom Strategies', 'API Access', 'White-Label Option', 'Dedicated Manager', 'SLA Guarantee', 'Early Feature Access'],
+    cta: 'Contact Sales', popular: false, color: '#f59e0b',
   },
 ];
 
-// ─── FAQ Data ─────────────────────────────────────────────────────────────────
+// ─── FAQ Data ──────────────────────────────────────────────────────────────────
 const FAQS = [
-  { q: 'Does XMX-QUANTUM work with my broker?', a: 'Yes — XMX-QUANTUM integrates with any MT5-compatible broker. We support 200+ regulated brokers worldwide including IC Markets, Pepperstone, XM, and more. Setup takes under 2 minutes.' },
-  { q: 'What instruments can I trade?', a: 'XAUUSDm (Gold), BTCUSDm (Bitcoin), EURUSD, GBPUSD, NASDAQm, and US30m. Elite plan includes custom instrument support for any MT5-listed asset.' },
-  { q: 'Is my capital safe?', a: 'Absolutely. XMX-QUANTUM is 100% non-custodial — your funds never leave your broker account. We only send trade signals via the MT5 API. You retain full control at all times.' },
-  { q: 'What kind of performance can I expect?', a: 'XMX-QUANTUM is in active Beta. Performance varies by market conditions, instrument, and risk settings. We do not publish guaranteed win rates — all trading involves risk and past signal performance is not indicative of future results.' },
-  { q: 'Can I run the bot 24/7?', a: 'Yes — Pro and Elite plans include cloud-hosted bot execution. Your bot runs 24/7 on our infrastructure even when your PC is off. Zero downtime, zero maintenance.' },
-  { q: 'What is the refund policy?', a: 'All plans include a 14-day money-back guarantee. If you are not satisfied for any reason within 14 days of purchase, contact support for a full refund — no questions asked.' },
-  { q: 'How does the ML model work?', a: 'Our Quantum AI model is trained on millions of historical trades using a proprietary ensemble of LSTM, XGBoost, and transformer architectures. It continuously retrains on live market data every 24 hours.' },
+  { q: 'Is XMX-QUANTUM connected to my broker?', a: 'XMX-QUANTUM is non-custodial — we never hold your funds. You connect your broker API (MT4/MT5, cTrader, or supported crypto exchanges) and we execute on your behalf.' },
+  { q: 'What is the BETA — Early Access status?', a: 'XMX-QUANTUM is currently in active beta. Core features are live and stable. Some advanced features are in development. Early access members get lifetime pricing locked in.' },
+  { q: 'How does the AI engine generate signals?', a: 'Our ML models analyze price action, volume, order flow, and market microstructure across multiple timeframes simultaneously. Signals are scored by confidence and filtered for quality before delivery.' },
+  { q: 'Can I use XMX-QUANTUM on mobile?', a: 'Yes. The web terminal is fully responsive. For on-the-go control, the Telegram bot integration lets you monitor positions, approve trades, and control the bot from any device.' },
+  { q: 'What instruments are supported?', a: 'Forex (major and minor pairs), crypto (BTC, ETH, and top altcoins), indices (S&P 500, NASDAQ, DAX), and commodities (Gold, Silver, Oil). More instruments added regularly.' },
+  { q: 'Is there a free trial?', a: 'Yes — 14 days free, no credit card required. Full access to all Pro features during the trial period.' },
 ];
 
-// ─── Features Data ────────────────────────────────────────────────────────────
-const FEATURES = [
-  { icon: Brain, title: 'Quantum AI Signals', desc: 'Proprietary ML models trained on extensive historical market data generate sub-second, high-probability signals with adaptive accuracy across multiple instruments.', tag: 'AI CORE' },
-  { icon: Zap, title: 'Sub-Second Execution', desc: 'Direct MT5 integration with smart order routing ensures your trades execute at the best available price, every time, with zero slippage.', tag: 'EXECUTION' },
-  { icon: Shield, title: 'Adaptive Risk Shield', desc: 'Automated stop-loss, take-profit, and drawdown protection dynamically adjusts to volatility to keep your capital safe 24/7.', tag: 'RISK' },
-  { icon: BarChart2, title: 'Institutional Analytics', desc: 'Deep-dive metrics: Sharpe ratio, profit factor, win-rate heatmaps, benchmark comparison, and custom dashboards for professional analysis.', tag: 'ANALYTICS' },
-  { icon: Bot, title: 'Autonomous Bot Engine', desc: 'Set it and forget it. Cloud-hosted bot runs 24/7, scanning 6 instruments and executing trades while you sleep.', tag: 'AUTOMATION' },
-  { icon: Activity, title: 'ML Model Dashboard', desc: 'Monitor live model performance, feature importance, and retrain triggers. Full transparency into every AI decision made on your behalf.', tag: 'ML MODEL' },
-  { icon: Lock, title: 'Non-Custodial Security', desc: 'Your capital never leaves your broker account. XMX-QUANTUM only sends signals via MT5 API — zero custody risk, zero counterparty exposure.', tag: 'SECURITY' },
-  { icon: BookOpen, title: 'Trade Journal & Replay', desc: 'Automatically log every trade with entry/exit screenshots, P&L attribution, and strategy tagging for continuous improvement.', tag: 'JOURNAL' },
-  { icon: Gift, title: 'Referral Rewards', desc: 'Earn real cash for every trader you refer. Instant payouts, no minimum threshold, and a dedicated referral dashboard to track your earnings.', tag: 'REWARDS' },
-];
-
-// ─── Main Component ───────────────────────────────────────────────────────────
-const LandingPage: React.FC = () => {
-  const [theme, setTheme] = useState<Theme>('dark');
-  const [billing, setBilling] = useState<'monthly' | 'annual'>('monthly');
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
+// ─── Component ─────────────────────────────────────────────────────────────────
+export default function LandingPage() {
+  const { darkMode, toggleDarkMode } = useTrading();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [annual, setAnnual] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [activeFeature, setActiveFeature] = useState(0);
+  const typewriterText = useTypewriter(PHRASES);
 
-  const typewriterTexts = [
-    'Thinks Faster Than Markets',
-    'Executes While You Sleep',
-    'Adapts to Every Market Condition',
-    'Gives You the Institutional Edge',
-  ];
-  const typedText = useTypewriter(typewriterTexts, 50, 2200);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
+  const scrollTo = useCallback((id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    setMobileMenuOpen(false);
   }, []);
 
+  // Animated gradient hue shift for typewriter text
+  const [hue, setHue] = useState(0);
   useEffect(() => {
-    document.documentElement.setAttribute('data-landing-theme', theme);
-  }, [theme]);
+    const interval = setInterval(() => setHue(h => (h + 0.5) % 360), 100);
+    return () => clearInterval(interval);
+  }, []);
 
-  const toggleTheme = useCallback(() => setTheme(t => t === 'light' ? 'dark' : 'light'), []);
-
-  // ─── Design tokens ────────────────────────────────────────────────────────
-  const isDark = theme === 'dark';
-  const T = {
-    bg:           isDark ? '#080b14' : '#ffffff',
-    bgSoft:       isDark ? '#0d1117' : '#f8f9fc',
-    bgCard:       isDark ? '#0f1623' : '#ffffff',
-    bgCardHover:  isDark ? '#141d2e' : '#f8f9fc',
-    text:         isDark ? '#f1f5f9' : '#0f172a',
-    textMuted:    isDark ? '#64748b' : '#64748b',
-    textSub:      isDark ? '#94a3b8' : '#475569',
-    border:       isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.08)',
-    borderBright: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.15)',
-    cyan:         '#00d4ff',
-    purple:       '#a855f7',
-    purpleDark:   '#7c3aed',
-    gold:         '#f59e0b',
-    navBg:        scrolled
-      ? (isDark ? 'rgba(8,11,20,0.92)' : 'rgba(255,255,255,0.92)')
-      : 'transparent',
-    navBorder:    scrolled
-      ? (isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.08)')
-      : 'transparent',
-    // Gradient blobs for hero — our dark version of PipNex's light blobs
-    blob1: isDark
-      ? 'radial-gradient(ellipse 900px 700px at 15% 20%, rgba(168,85,247,0.18) 0%, transparent 70%)'
-      : 'radial-gradient(ellipse 900px 700px at 15% 20%, rgba(168,85,247,0.12) 0%, transparent 70%)',
-    blob2: isDark
-      ? 'radial-gradient(ellipse 700px 600px at 85% 30%, rgba(0,212,255,0.14) 0%, transparent 70%)'
-      : 'radial-gradient(ellipse 700px 600px at 85% 30%, rgba(0,212,255,0.08) 0%, transparent 70%)',
-    blob3: isDark
-      ? 'radial-gradient(ellipse 500px 400px at 50% 80%, rgba(124,58,237,0.1) 0%, transparent 70%)'
-      : 'radial-gradient(ellipse 500px 400px at 50% 80%, rgba(124,58,237,0.06) 0%, transparent 70%)',
+  const bgStyle = darkMode ? {
+    background: 'linear-gradient(135deg, #0a1628 0%, #1e1b4b 50%, #0a0a0f 100%)',
+  } : {
+    background: 'linear-gradient(135deg, #fce7f3 0%, #fed7aa 35%, #ddd6fe 70%, #ffffff 100%)',
   };
 
-  const sectionPad = '6rem 1.5rem';
-  const maxW = { maxWidth: 1200, margin: '0 auto', width: '100%' };
+  const gridOverlay = darkMode ? {
+    backgroundImage: 'linear-gradient(rgba(0,212,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.04) 1px, transparent 1px)',
+    backgroundSize: '40px 40px',
+  } : {};
 
-  // ─── Render ───────────────────────────────────────────────────────────────
   return (
-    <div style={{ background: T.bg, color: T.text, fontFamily: "'Inter', 'Space Grotesk', sans-serif", overflowX: 'hidden', minHeight: '100vh' }}>
+    <div style={{ ...bgStyle, minHeight: '100vh', overflowX: 'hidden', position: 'relative' }}>
+      {/* Particle Background */}
+      <ParticleBackground darkMode={darkMode} />
 
-      {/* ═══════════════════════════════════════════════════════════════════════
-          NAVBAR
-      ═══════════════════════════════════════════════════════════════════════ */}
+      {/* Radial Glow Blobs */}
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
+        <div style={{
+          position: 'absolute', top: '10%', left: '15%', width: 600, height: 600,
+          borderRadius: '50%',
+          background: darkMode ? 'radial-gradient(circle, rgba(0,212,255,0.25) 0%, transparent 70%)' : 'radial-gradient(circle, rgba(0,212,255,0.10) 0%, transparent 70%)',
+          animation: 'glow-pulse 4s ease-in-out infinite',
+          filter: 'blur(60px)',
+        }} />
+        <div style={{
+          position: 'absolute', bottom: '15%', right: '10%', width: 500, height: 500,
+          borderRadius: '50%',
+          background: darkMode ? 'radial-gradient(circle, rgba(168,85,247,0.25) 0%, transparent 70%)' : 'radial-gradient(circle, rgba(168,85,247,0.10) 0%, transparent 70%)',
+          animation: 'glow-pulse 4s ease-in-out infinite 2s',
+          filter: 'blur(60px)',
+        }} />
+      </div>
+
+      {/* Grid Overlay (dark mode only) */}
+      {darkMode && (
+        <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, ...gridOverlay }} />
+      )}
+
+      {/* ── NAVBAR ───────────────────────────────────────────────── */}
       <nav style={{
-        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000,
-        background: T.navBg,
-        borderBottom: `1px solid ${T.navBorder}`,
-        backdropFilter: scrolled ? 'blur(24px) saturate(1.8)' : 'none',
-        WebkitBackdropFilter: scrolled ? 'blur(24px) saturate(1.8)' : 'none',
-        transition: 'all 0.35s cubic-bezier(0.4,0,0.2,1)',
-        padding: '0 max(1.5rem, calc((100vw - 1200px) / 2))',
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+        backdropFilter: 'blur(20px)',
+        background: darkMode ? 'rgba(10,22,40,0.85)' : 'rgba(255,255,255,0.85)',
+        borderBottom: `1px solid ${darkMode ? 'rgba(0,212,255,0.1)' : 'rgba(168,85,247,0.15)'}`,
+        padding: '0 24px',
+        height: 64,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', height: 68, gap: '2rem' }}>
+        <Link to="/" style={{ textDecoration: 'none' }}>
+          <LogoIcon size={32} showWordmark showSubtitle wordmarkColor={darkMode ? '#e8f4fd' : '#0f1f2e'} subtitleColor={darkMode ? '#7a9ab5' : '#6b8ba4'} />
+        </Link>
 
-          {/* Logo */}
-          <Link to="/" style={{ textDecoration: 'none', flexShrink: 0 }}>
-            <LogoIcon size={34} showWordmark wordmarkSize={14} wordmarkColor={T.text} showSubtitle subtitleColor={T.textMuted} />
-          </Link>
-
-          {/* Desktop nav links — centered */}
-          <div className="landing-nav-links" style={{ display: 'flex', gap: '0.25rem', flex: 1, justifyContent: 'center' }}>
-            {['Features', 'Pricing', 'About', 'FAQ'].map(item => (
-              <a key={item} href={`#${item.toLowerCase()}`} style={{
-                textDecoration: 'none', color: T.textMuted, fontSize: '0.875rem', fontWeight: 500,
-                padding: '0.45rem 0.85rem', borderRadius: 8, transition: 'all 0.2s',
-                letterSpacing: '-0.01em',
-              }}
-                onMouseEnter={e => { e.currentTarget.style.color = T.text; e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)'; }}
-                onMouseLeave={e => { e.currentTarget.style.color = T.textMuted; e.currentTarget.style.background = 'transparent'; }}
-              >{item}</a>
-            ))}
-          </div>
-
-          {/* Right side */}
-          <div className="landing-nav-right" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
-            <button onClick={toggleTheme} title="Toggle theme" style={{
-              background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
-              border: `1px solid ${T.border}`, borderRadius: 8,
-              width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer', color: T.textMuted, transition: 'all 0.2s',
-            }}>
-              {isDark ? <Sun size={15} /> : <Moon size={15} />}
-            </button>
-            <Link to="/login" style={{
-              textDecoration: 'none', color: T.text, fontSize: '0.875rem', fontWeight: 500,
-              padding: '0.45rem 1rem', borderRadius: 8,
-              border: `1px solid ${T.border}`,
-              background: 'transparent', transition: 'all 0.2s',
+        {/* Desktop Nav */}
+        <div className="nav-links-desktop" style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
+          {['features', 'pricing', 'about', 'faq'].map(id => (
+            <button key={id} onClick={() => scrollTo(id)} style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              color: darkMode ? '#7a9ab5' : '#3a5a78',
+              fontSize: '0.875rem', fontWeight: 500, textTransform: 'capitalize',
+              transition: 'color 200ms',
             }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = T.borderBright; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = T.border; }}
-            >Sign In</Link>
-            <Link to="/signup" style={{
-              textDecoration: 'none',
-              background: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #00d4ff 100%)',
-              color: '#fff', fontSize: '0.875rem', fontWeight: 600,
-              padding: '0.5rem 1.25rem', borderRadius: 100,
-              transition: 'all 0.2s',
-              boxShadow: '0 2px 16px rgba(168,85,247,0.35)',
-            }}
-              onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 28px rgba(168,85,247,0.55)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-              onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 2px 16px rgba(168,85,247,0.35)'; e.currentTarget.style.transform = 'none'; }}
-            >Get Started Free</Link>
-          </div>
+              onMouseEnter={e => (e.currentTarget.style.color = '#00d4ff')}
+              onMouseLeave={e => (e.currentTarget.style.color = darkMode ? '#7a9ab5' : '#3a5a78')}
+            >{id}</button>
+          ))}
+        </div>
 
-          {/* Mobile hamburger */}
-          <button className="landing-hamburger" onClick={() => setMobileMenuOpen(v => !v)} style={{
-            display: 'none', background: 'transparent', border: 'none', cursor: 'pointer',
-            color: T.text, padding: '0.25rem',
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {/* Theme Toggle */}
+          <button onClick={toggleDarkMode} style={{
+            background: darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
+            border: `1px solid ${darkMode ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)'}`,
+            borderRadius: 9999, width: 36, height: 36,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', color: darkMode ? '#e8f4fd' : '#0f1f2e',
+            transition: 'all 200ms',
+          }}>
+            <motion.div animate={{ rotate: darkMode ? 0 : 180 }} transition={{ duration: 0.3 }}>
+              {darkMode ? <Sun size={16} /> : <Moon size={16} />}
+            </motion.div>
+          </button>
+
+          <Link to="/login" style={{
+            padding: '8px 16px', borderRadius: 9999,
+            border: `1px solid ${darkMode ? 'rgba(0,212,255,0.3)' : 'rgba(168,85,247,0.3)'}`,
+            color: darkMode ? '#00d4ff' : '#7c3aed',
+            textDecoration: 'none', fontSize: '0.875rem', fontWeight: 600,
+            transition: 'all 200ms',
+          }}>Sign In</Link>
+
+          <Link to="/signup" className="nav-cta-btn" style={{
+            padding: '8px 18px', borderRadius: 9999,
+            background: 'linear-gradient(135deg, #00d4ff, #a855f7)',
+            color: '#fff', textDecoration: 'none', fontSize: '0.875rem', fontWeight: 700,
+            boxShadow: '0 0 20px rgba(0,212,255,0.3)',
+            transition: 'all 200ms',
+            whiteSpace: 'nowrap',
+          }}>Get Started Free</Link>
+
+          {/* Mobile Menu Button */}
+          <button className="mobile-menu-btn" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} style={{
+            display: 'none', background: 'none', border: 'none', cursor: 'pointer',
+            color: darkMode ? '#e8f4fd' : '#0f1f2e',
           }}>
             {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
       </nav>
 
-      {/* Mobile menu */}
+      {/* Mobile Menu */}
       <AnimatePresence>
         {mobileMenuOpen && (
-          <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }}
+          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
             style={{
-              position: 'fixed', top: 68, left: 0, right: 0, bottom: 0, zIndex: 999,
-              background: T.bg, padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem',
-              borderTop: `1px solid ${T.border}`,
-            }}
-          >
-            {['Features', 'Pricing', 'About', 'FAQ'].map(item => (
-              <a key={item} href={`#${item.toLowerCase()}`} onClick={() => setMobileMenuOpen(false)} style={{
-                textDecoration: 'none', color: T.text, fontSize: '1rem', fontWeight: 600,
-                padding: '0.85rem 1rem', borderRadius: 10, border: `1px solid ${T.border}`,
-              }}>{item}</a>
+              position: 'fixed', top: 64, left: 0, right: 0, zIndex: 99,
+              background: darkMode ? 'rgba(10,22,40,0.98)' : 'rgba(255,255,255,0.98)',
+              backdropFilter: 'blur(20px)',
+              borderBottom: `1px solid ${darkMode ? 'rgba(0,212,255,0.1)' : 'rgba(168,85,247,0.15)'}`,
+              padding: '1.5rem 24px',
+              display: 'flex', flexDirection: 'column', gap: 16,
+            }}>
+            {['features', 'pricing', 'about', 'faq'].map(id => (
+              <button key={id} onClick={() => scrollTo(id)} style={{
+                background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left',
+                color: darkMode ? '#e8f4fd' : '#0f1f2e',
+                fontSize: '1rem', fontWeight: 500, textTransform: 'capitalize',
+                padding: '8px 0',
+              }}>{id}</button>
             ))}
-            <div style={{ height: 1, background: T.border, margin: '0.25rem 0' }} />
-            <Link to="/login" onClick={() => setMobileMenuOpen(false)} style={{
-              textDecoration: 'none', color: T.text, fontSize: '1rem', fontWeight: 600,
-              padding: '0.85rem 1rem', borderRadius: 10, border: `1px solid ${T.border}`, textAlign: 'center',
-            }}>Sign In</Link>
-            <Link to="/signup" onClick={() => setMobileMenuOpen(false)} style={{
-              textDecoration: 'none',
-              background: 'linear-gradient(135deg, #7c3aed, #a855f7)',
-              color: '#fff', fontSize: '1rem', fontWeight: 700,
-              padding: '0.9rem 1rem', borderRadius: 100, textAlign: 'center',
+            <Link to="/login" style={{ color: darkMode ? '#00d4ff' : '#7c3aed', textDecoration: 'none', fontWeight: 600, padding: '8px 0' }}>Sign In</Link>
+            <Link to="/signup" style={{
+              padding: '12px 24px', borderRadius: 9999, textAlign: 'center',
+              background: 'linear-gradient(135deg, #00d4ff, #a855f7)',
+              color: '#fff', textDecoration: 'none', fontWeight: 700,
             }}>Get Started Free</Link>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ═══════════════════════════════════════════════════════════════════════
-          HERO — PipNex pattern: large centered headline, gradient blobs, 3-stat bar below
-      ═══════════════════════════════════════════════════════════════════════ */}
-      <section style={{
-        position: 'relative', minHeight: '100vh',
-        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-        textAlign: 'center', padding: '7rem 1.5rem 5rem', overflow: 'hidden',
-      }}>
-        {/* Gradient blobs — our dark version of PipNex's light blobs */}
-        <div style={{ position: 'absolute', inset: 0, background: T.blob1, pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', inset: 0, background: T.blob2, pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', inset: 0, background: T.blob3, pointerEvents: 'none' }} />
+      {/* Main Content */}
+      <div style={{ position: 'relative', zIndex: 1 }}>
 
-        {/* Subtle grid overlay */}
-        <div style={{
-          position: 'absolute', inset: 0, pointerEvents: 'none', opacity: isDark ? 0.03 : 0.02,
-          backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)',
-          backgroundSize: '60px 60px',
-        }} />
-
-        {/* BETA badge — PipNex pattern: small pill badge above headline */}
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-          style={{
-            display: 'inline-flex', alignItems: 'center', gap: '0.45rem',
-            background: isDark ? 'rgba(168,85,247,0.12)' : 'rgba(168,85,247,0.08)',
-            border: '1px solid rgba(168,85,247,0.3)', borderRadius: 100,
-            padding: '0.35rem 1rem', fontSize: '0.75rem', fontWeight: 700,
-            color: T.purple, marginBottom: '1.75rem', position: 'relative', zIndex: 1,
-            letterSpacing: '0.06em',
-          }}
-        >
-          <Sparkles size={12} />
-          BETA — QUANTUM AI V3.0 — EARLY ACCESS
-        </motion.div>
-
-        {/* Headline — PipNex pattern: brand name on line 1 in accent, tagline on line 2 in dark */}
-        <motion.h1 initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-          style={{
-            fontSize: 'clamp(2.25rem, 5.5vw, 4rem)', fontWeight: 900, lineHeight: 1.1,
-            maxWidth: 860, margin: '0 auto 1.5rem', position: 'relative', zIndex: 1,
-            letterSpacing: '-0.03em', color: T.text,
-          }}
-        >
-          <span style={{
-            background: 'linear-gradient(135deg, #00d4ff 0%, #a855f7 50%, #7c3aed 100%)',
-            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-          }}>XMX-QUANTUM</span>
-          {' — '}
-          <span style={{ color: T.text }}>The AI Terminal That{' '}</span>
-          <span style={{
-            background: 'linear-gradient(135deg, #a855f7 0%, #00d4ff 100%)',
-            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-          }}>{typedText}</span>
-          <span style={{ borderRight: `3px solid ${T.purple}`, marginLeft: 2, opacity: 0.8 }}>|</span>
-        </motion.h1>
-
-        {/* Subtitle */}
-        <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
-          style={{
-            fontSize: 'clamp(1rem, 2vw, 1.2rem)', color: T.textSub,
-            maxWidth: 580, margin: '0 auto 2.75rem', lineHeight: 1.75,
-            position: 'relative', zIndex: 1,
-          }}
-        >
-          Institutional-grade Quantum AI meets autonomous bot execution. Professional-grade trading tools, built for serious retail traders — without the institutional price tag.
-        </motion.p>
-
-        {/* CTA Buttons — PipNex pattern: primary pill + ghost pill side by side */}
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}
-          className="hero-cta-row"
-          style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '1.5rem', position: 'relative', zIndex: 1 }}
-        >
-          <Link to="/signup" style={{
-            display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-            padding: '0.9rem 2.25rem', borderRadius: 100, fontSize: '1rem', fontWeight: 700,
-            background: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #00d4ff 100%)',
-            color: '#fff', textDecoration: 'none',
-            boxShadow: '0 4px 24px rgba(168,85,247,0.4)', transition: 'all 0.25s',
-          }}
-            onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 8px 40px rgba(168,85,247,0.6)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-            onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 4px 24px rgba(168,85,247,0.4)'; e.currentTarget.style.transform = 'none'; }}
-          >
-            Start Free Trial <ArrowRight size={17} />
-          </Link>
-          <Link to="/dashboard" style={{
-            display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-            padding: '0.9rem 2.25rem', borderRadius: 100, fontSize: '1rem', fontWeight: 600,
-            background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
-            color: T.text, textDecoration: 'none',
-            border: `1.5px solid ${T.borderBright}`, transition: 'all 0.25s',
-          }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = T.purple; e.currentTarget.style.color = T.purple; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = T.borderBright; e.currentTarget.style.color = T.text; }}
-          >
-            View Dashboard →
-          </Link>
-        </motion.div>
-
-        {/* Trust badges */}
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}
-          style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', flexWrap: 'wrap', position: 'relative', zIndex: 1, marginBottom: '4rem' }}
-        >
-          {[
-            { icon: Clock, text: '14-Day Money Back' },
-            { icon: Lock, text: 'Non-Custodial' },
-            { icon: Activity, text: '24/7 Bot Uptime' },
-          ].map(({ icon: Icon, text }) => (
-            <div key={text} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', color: T.textMuted }}>
-              <Icon size={13} color={T.purple} /> {text}
-            </div>
-          ))}
-        </motion.div>
-
-        {/* ── HERO STAT CARDS — PipNex pattern: 3 cards below hero with large bold numbers ── */}
-        <motion.div initial={{ opacity: 0, y: 32 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.75 }}
-          className="hero-stat-cards"
-          style={{
-            display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.25rem',
-            maxWidth: 820, width: '100%', position: 'relative', zIndex: 1,
-          }}
-        >
-          {[
-            { icon: Brain, value: 'Quantum AI', label: 'Institutional-Grade Engine', color: T.purple },
-            { icon: Activity, value: 'Real-Time', label: 'Market Sentiment Analysis', color: T.cyan },
-            { icon: Bot, value: '24 / 7', label: 'Autonomous Bot Execution', color: '#10b981' },
-          ].map(({ icon: Icon, value, label, color }) => (
-            <div key={label} className="stat-card" style={{
-              background: T.bgCard,
-              border: `1px solid ${T.border}`,
-              borderRadius: 20, padding: '1.75rem 1.5rem', textAlign: 'center',
-              boxShadow: isDark ? '0 4px 24px rgba(0,0,0,0.4)' : '0 4px 24px rgba(0,0,0,0.08)',
-              position: 'relative', overflow: 'hidden',
+        {/* ── HERO ─────────────────────────────────────────────────── */}
+        <section style={{
+          minHeight: '100vh', display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center',
+          padding: '120px 24px 80px',
+          textAlign: 'center',
+        }}>
+          {/* Beta Badge */}
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              padding: '6px 16px', borderRadius: 9999, marginBottom: '2rem',
+              background: darkMode ? 'rgba(0,212,255,0.08)' : 'rgba(168,85,247,0.08)',
+              border: `1px solid ${darkMode ? 'rgba(0,212,255,0.25)' : 'rgba(168,85,247,0.25)'}`,
+              color: darkMode ? '#00d4ff' : '#7c3aed',
+              fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.08em',
             }}>
-              <div style={{
-                width: 44, height: 44, borderRadius: 12, margin: '0 auto 1rem',
-                background: `${color}18`,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <Icon size={22} color={color} />
-              </div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 800, color: T.text, letterSpacing: '-0.02em', marginBottom: '0.35rem' }}>{value}</div>
-              <div style={{ fontSize: '0.8rem', color: T.textMuted, lineHeight: 1.4 }}>{label}</div>
-            </div>
-          ))}
-        </motion.div>
-      </section>
+            <Diamond size={12} />
+            BETA — QUANTUM AI V3.0 — EARLY ACCESS
+            <Diamond size={12} />
+          </motion.div>
 
-      {/* ═══════════════════════════════════════════════════════════════════════
-          FEATURES — PipNex pattern: section label + h2 + 3-column card grid
-      ═══════════════════════════════════════════════════════════════════════ */}
-      <section id="features" style={{ padding: sectionPad, background: T.bgSoft }}>
-        <div style={maxW}>
-          {/* Section header */}
-          <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
-            <div style={{
-              display: 'inline-block',
-              background: isDark ? 'rgba(168,85,247,0.1)' : 'rgba(168,85,247,0.08)',
-              border: '1px solid rgba(168,85,247,0.2)', borderRadius: 100,
-              padding: '0.3rem 1rem', fontSize: '0.72rem', fontWeight: 700,
-              color: T.purple, letterSpacing: '0.1em', marginBottom: '1.1rem',
-            }}>PLATFORM FEATURES</div>
-            <h2 style={{
-              fontSize: 'clamp(1.75rem, 3.5vw, 2.75rem)', fontWeight: 800,
-              margin: '0 0 1rem', color: T.text, letterSpacing: '-0.025em', lineHeight: 1.2,
+          {/* Headline */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+            style={{ maxWidth: 'min(900px, 95vw)', wordWrap: 'break-word', hyphens: 'auto' }}>
+            <h1 style={{
+              fontSize: 'clamp(2.2rem, 5.5vw, 5rem)',
+              fontWeight: 900,
+              letterSpacing: '-0.04em',
+              lineHeight: 1.08,
+              marginBottom: '0.5rem',
+              color: darkMode ? '#e8f4fd' : '#0f1f2e',
+              fontFamily: "'Space Grotesk', 'Inter', sans-serif",
             }}>
-              Why Traders Choose{' '}
+              XMX-QUANTUM —
+            </h1>
+            <h1 style={{
+              fontSize: 'clamp(2rem, 5vw, 4.5rem)',
+              fontWeight: 900,
+              letterSpacing: '-0.03em',
+              lineHeight: 1.1,
+              minHeight: '1.2em',
+              fontFamily: "'Space Grotesk', 'Inter', sans-serif",
+              background: `linear-gradient(${90 + hue * 0.1}deg, #00d4ff, #a855f7)`,
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}>
+              {typewriterText}
               <span style={{
-                background: 'linear-gradient(135deg, #a855f7, #00d4ff)',
-                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-              }}>XMX-QUANTUM</span>
-            </h2>
-            <p style={{ color: T.textMuted, fontSize: '1rem', maxWidth: 520, margin: '0 auto', lineHeight: 1.7 }}>
-              Built for serious traders who demand professional-grade tools without institutional fees.
-            </p>
-          </div>
+                display: 'inline-block', width: 3, height: '0.85em',
+                background: '#00d4ff', marginLeft: 2, verticalAlign: 'middle',
+                animation: 'cursor-blink 500ms step-end infinite',
+              }} />
+            </h1>
+          </motion.div>
 
-          {/* 3-column feature card grid — PipNex pattern */}
-          <div className="features-grid-3col" style={{
-            display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem',
-          }}>
-            {FEATURES.map(({ icon: Icon, title, desc, tag }) => (
-              <div key={title} className="card" style={{
-                background: T.bgCard,
-                border: `1px solid ${T.border}`,
-                borderRadius: 20, padding: '1.75rem',
-                transition: 'all 0.3s cubic-bezier(0.175,0.885,0.32,1.275)',
-                cursor: 'default', position: 'relative', overflow: 'hidden',
-              }}
-                onMouseEnter={e => {
-                  (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(168,85,247,0.35)';
-                  (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-4px)';
-                  (e.currentTarget as HTMLDivElement).style.boxShadow = isDark ? '0 16px 40px rgba(168,85,247,0.12)' : '0 16px 40px rgba(168,85,247,0.08)';
-                }}
-                onMouseLeave={e => {
-                  (e.currentTarget as HTMLDivElement).style.borderColor = T.border;
-                  (e.currentTarget as HTMLDivElement).style.transform = 'none';
-                  (e.currentTarget as HTMLDivElement).style.boxShadow = 'none';
-                }}
-              >
-                {/* Icon with tinted bg — PipNex pattern */}
-                <div style={{
-                  width: 48, height: 48, borderRadius: 14, marginBottom: '1.1rem',
-                  background: isDark ? 'rgba(168,85,247,0.12)' : 'rgba(168,85,247,0.08)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <Icon size={22} color={T.purple} />
-                </div>
-                {/* Tag */}
-                <div style={{ fontSize: '0.68rem', fontWeight: 700, color: T.purple, letterSpacing: '0.1em', marginBottom: '0.5rem' }}>{tag}</div>
-                {/* Title */}
-                <h3 style={{ fontSize: '1rem', fontWeight: 700, color: T.text, margin: '0 0 0.6rem', letterSpacing: '-0.01em' }}>{title}</h3>
-                {/* Description */}
-                <p style={{ fontSize: '0.875rem', color: T.textMuted, lineHeight: 1.65, margin: 0 }}>{desc}</p>
-              </div>
-            ))}
-          </div>
+          {/* Subtitle */}
+          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
+            style={{
+              fontSize: 'clamp(0.95rem, 2vw, 1.15rem)',
+              color: darkMode ? 'rgba(232,244,253,0.6)' : 'rgba(15,31,46,0.65)',
+              maxWidth: 620, lineHeight: 1.7, marginTop: '1.5rem', marginBottom: '2.5rem',
+            }}>
+            Built for traders who refuse to miss a move. XMX-QUANTUM runs ML-powered analysis 24/7, executes with surgical precision, and delivers institutional-grade signals — without the institutional gatekeeping.
+          </motion.p>
 
-          {/* CTA below features — PipNex pattern */}
-          <div style={{ textAlign: 'center', marginTop: '3rem' }}>
+          {/* CTA Buttons */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}
+            className="hero-cta-row"
+            style={{ display: 'flex', gap: 16, flexWrap: 'wrap', justifyContent: 'center', marginBottom: '2rem' }}>
             <Link to="/signup" style={{
-              display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-              padding: '0.85rem 2rem', borderRadius: 100, fontSize: '0.95rem', fontWeight: 600,
-              border: `1.5px solid rgba(168,85,247,0.4)`, color: T.purple,
-              background: isDark ? 'rgba(168,85,247,0.08)' : 'rgba(168,85,247,0.05)',
-              textDecoration: 'none', transition: 'all 0.2s',
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              padding: '14px 28px', borderRadius: 9999,
+              background: 'linear-gradient(135deg, #00d4ff, #a855f7)',
+              color: '#fff', textDecoration: 'none', fontWeight: 700,
+              fontSize: '1rem', boxShadow: '0 0 30px rgba(0,212,255,0.4)',
+              animation: 'cta-pulse 3s ease-in-out infinite',
+              transition: 'transform 200ms, box-shadow 200ms',
             }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(168,85,247,0.15)'; e.currentTarget.style.borderColor = T.purple; }}
-              onMouseLeave={e => { e.currentTarget.style.background = isDark ? 'rgba(168,85,247,0.08)' : 'rgba(168,85,247,0.05)'; e.currentTarget.style.borderColor = 'rgba(168,85,247,0.4)'; }}
+              onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.04)'; e.currentTarget.style.boxShadow = '0 0 50px rgba(0,212,255,0.6)'; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 0 30px rgba(0,212,255,0.4)'; }}
             >
-              Explore All Features <ArrowRight size={16} />
+              Start Free Trial <ArrowRight size={18} />
             </Link>
-          </div>
-        </div>
-      </section>
+            <button style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              padding: '14px 28px', borderRadius: 9999,
+              background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)',
+              border: `1px solid ${darkMode ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)'}`,
+              color: darkMode ? '#e8f4fd' : '#0f1f2e',
+              fontWeight: 600, fontSize: '1rem', cursor: 'pointer',
+              backdropFilter: 'blur(10px)',
+              transition: 'all 200ms',
+            }}
+              onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.03)'; e.currentTarget.style.borderColor = 'rgba(0,212,255,0.4)'; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)'; }}
+            >
+              Watch It Trade <Play size={18} />
+            </button>
+          </motion.div>
 
-      {/* ═══════════════════════════════════════════════════════════════════════
-          HOW IT WORKS
-      ═══════════════════════════════════════════════════════════════════════ */}
-      <section id="how-it-works" style={{ padding: sectionPad, background: T.bg }}>
-        <div style={maxW}>
-          <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
-            <div style={{
-              display: 'inline-block',
-              background: isDark ? 'rgba(0,212,255,0.08)' : 'rgba(0,212,255,0.06)',
-              border: '1px solid rgba(0,212,255,0.2)', borderRadius: 100,
-              padding: '0.3rem 1rem', fontSize: '0.72rem', fontWeight: 700,
-              color: T.cyan, letterSpacing: '0.1em', marginBottom: '1.1rem',
-            }}>HOW IT WORKS</div>
-            <h2 style={{
-              fontSize: 'clamp(1.75rem, 3.5vw, 2.75rem)', fontWeight: 800,
-              margin: '0 0 1rem', color: T.text, letterSpacing: '-0.025em',
-            }}>
-              Up and Running in{' '}
-              <span style={{ color: T.cyan }}>3 Simple Steps</span>
-            </h2>
-            <p style={{ color: T.textMuted, fontSize: '1rem', maxWidth: 480, margin: '0 auto', lineHeight: 1.7 }}>
-              From signup to live trading in under 5 minutes.
-            </p>
-          </div>
-
-          <div className="steps-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2rem', position: 'relative' }}>
-            {/* Connector line */}
-            <div className="steps-connector" style={{
-              position: 'absolute', top: '2.5rem', left: '20%', right: '20%', height: 1,
-              background: `linear-gradient(90deg, transparent, ${T.purple}, ${T.cyan}, transparent)`,
-              opacity: 0.3, pointerEvents: 'none',
-            }} />
-
+          {/* Trust Strip */}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}
+            className="hero-trust-row"
+            style={{ display: 'flex', gap: 24, flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
             {[
-              { step: '01', title: 'Connect Your Broker', desc: 'Link your MT5 account in under 2 minutes. We support 200+ regulated brokers worldwide.', icon: Lock, color: T.purple },
-              { step: '02', title: 'Configure Your Strategy', desc: 'Choose your instruments, risk level, and trading hours. The AI handles the rest automatically.', icon: Brain, color: T.cyan },
-              { step: '03', title: 'Start Earning', desc: 'Watch the Quantum AI execute trades 24/7. Monitor performance in real-time on your dashboard.', icon: TrendingUp, color: '#10b981' },
-            ].map(({ step, title, desc, icon: Icon, color }) => (
-              <div key={step} style={{ textAlign: 'center', position: 'relative', zIndex: 1 }}>
-                <div style={{
-                  width: 64, height: 64, borderRadius: '50%', margin: '0 auto 1.5rem',
-                  background: `${color}18`, border: `2px solid ${color}40`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  position: 'relative',
-                }}>
-                  <Icon size={26} color={color} />
-                  <div style={{
-                    position: 'absolute', top: -8, right: -8,
-                    width: 24, height: 24, borderRadius: '50%',
-                    background: color, color: '#fff',
-                    fontSize: '0.65rem', fontWeight: 800,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>{step}</div>
-                </div>
-                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: T.text, margin: '0 0 0.6rem', letterSpacing: '-0.01em' }}>{title}</h3>
-                <p style={{ fontSize: '0.875rem', color: T.textMuted, lineHeight: 1.65, margin: 0 }}>{desc}</p>
+              { icon: Clock, text: '14-Day Money Back' },
+              { icon: Lock, text: 'Non-Custodial' },
+              { icon: Activity, text: '24/7 Bot Uptime' },
+              { icon: Zap, text: 'Sub-Second Execution' },
+            ].map(({ icon: Icon, text }) => (
+              <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 6, color: darkMode ? 'rgba(232,244,253,0.45)' : 'rgba(15,31,46,0.5)', fontSize: '0.8rem' }}>
+                <Icon size={14} />
+                <span>{text}</span>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
+          </motion.div>
+        </section>
 
-      {/* ═══════════════════════════════════════════════════════════════════════
-          PRICING — PipNex pattern: toggle + 3 cards + floating badges
-      ═══════════════════════════════════════════════════════════════════════ */}
-      <section id="pricing" style={{ padding: sectionPad, background: T.bgSoft, overflow: 'visible' }}>
-        <div style={{ ...maxW, overflow: 'visible' }}>
-          <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
-            <div style={{
-              display: 'inline-block',
-              background: isDark ? 'rgba(168,85,247,0.1)' : 'rgba(168,85,247,0.08)',
-              border: '1px solid rgba(168,85,247,0.2)', borderRadius: 100,
-              padding: '0.3rem 1rem', fontSize: '0.72rem', fontWeight: 700,
-              color: T.purple, letterSpacing: '0.1em', marginBottom: '1.1rem',
-            }}>PRICING</div>
-            <h2 style={{
-              fontSize: 'clamp(1.75rem, 3.5vw, 2.75rem)', fontWeight: 800,
-              margin: '0 0 1rem', color: T.text, letterSpacing: '-0.025em',
-            }}>
-              Simple, Transparent{' '}
-              <span style={{ color: T.purple }}>Pricing</span>
+        {/* ── FEATURES ─────────────────────────────────────────────── */}
+        <section id="features" style={{ padding: '6rem 24px', maxWidth: 1200, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+            <div className="section-label"><Target size={12} /> CAPABILITIES</div>
+            <h2 className="section-heading" style={{ color: darkMode ? '#e8f4fd' : '#0f1f2e' }}>
+              Everything a Serious Trader Needs
             </h2>
-            <p style={{ color: T.textMuted, fontSize: '1rem', maxWidth: 480, margin: '0 auto 2rem', lineHeight: 1.7 }}>
-              Choose the plan that fits your trading goals. No hidden fees, no lock-in contracts.
+            <p className="section-subheading">
+              Nine institutional-grade modules. One unified terminal.
             </p>
+          </div>
 
-            {/* Monthly/Annual toggle — PipNex pattern */}
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.75rem', background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', borderRadius: 100, padding: '0.35rem', border: `1px solid ${T.border}` }}>
-              {(['monthly', 'annual'] as const).map(b => (
-                <button key={b} onClick={() => setBilling(b)} style={{
-                  padding: '0.45rem 1.25rem', borderRadius: 100, fontSize: '0.875rem', fontWeight: 600,
-                  border: 'none', cursor: 'pointer', transition: 'all 0.2s',
-                  background: billing === b ? (isDark ? '#1e1b4b' : '#fff') : 'transparent',
-                  color: billing === b ? T.purple : T.textMuted,
-                  boxShadow: billing === b ? '0 2px 8px rgba(0,0,0,0.15)' : 'none',
+          <div style={{ display: 'flex', gap: 32, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+            {/* Feature List */}
+            <div style={{ flex: '0 0 280px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+              {FEATURES.map((f, i) => (
+                <button key={i} onClick={() => setActiveFeature(i)} style={{
+                  display: 'flex', alignItems: 'center', gap: 12,
+                  padding: '12px 16px', borderRadius: 12, border: 'none', cursor: 'pointer',
+                  background: activeFeature === i
+                    ? (darkMode ? 'rgba(0,212,255,0.1)' : 'rgba(168,85,247,0.08)')
+                    : 'transparent',
+                  borderLeft: activeFeature === i ? '3px solid #00d4ff' : '3px solid transparent',
+                  textAlign: 'left', transition: 'all 200ms',
                 }}>
-                  {b === 'monthly' ? 'Monthly' : (
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                      Annual
-                      <span style={{ background: '#10b981', color: '#fff', fontSize: '0.65rem', fontWeight: 700, padding: '0.15rem 0.45rem', borderRadius: 100 }}>Save 20%</span>
-                    </span>
-                  )}
+                  <f.icon size={18} color={activeFeature === i ? '#00d4ff' : (darkMode ? '#7a9ab5' : '#6b8ba4')} />
+                  <span style={{
+                    fontSize: '0.875rem', fontWeight: activeFeature === i ? 700 : 500,
+                    color: activeFeature === i ? (darkMode ? '#e8f4fd' : '#0f1f2e') : (darkMode ? '#7a9ab5' : '#6b8ba4'),
+                  }}>{f.title}</span>
                 </button>
               ))}
             </div>
-          </div>
 
-          {/* Pricing cards — PipNex pattern with floating badge */}
-          <div className="pricing-cards-row" style={{
-            display: 'flex', gap: '1.5rem', alignItems: 'flex-start',
-            paddingTop: '2.5rem', overflow: 'visible',
-          }}>
-            {PLANS.map((plan) => {
-              const isPopular = plan.name === 'Pro';
-              const isElite = plan.name === 'Elite';
-              return (
-                <div key={plan.name} className="pricing-card" style={{
-                  flex: '1 1 0', minWidth: 0,
-                  background: T.bgCard,
-                  border: `1.5px solid ${isPopular ? plan.accent : isElite ? plan.accent : T.border}`,
-                  borderRadius: 24, padding: '2rem 1.75rem',
-                  position: 'relative', overflow: 'visible',
-                  boxShadow: isPopular
-                    ? `0 0 0 1px ${plan.accent}30, 0 24px 60px ${plan.accent}20`
-                    : isDark ? '0 4px 24px rgba(0,0,0,0.3)' : '0 4px 24px rgba(0,0,0,0.06)',
-                  transform: isPopular ? 'scale(1.03)' : 'none',
-                  marginTop: isPopular ? 0 : '0.5rem',
-                }}>
-                  {/* Floating badge — PipNex pattern: absolute, centered, above card */}
-                  {plan.badge && (
-                    <div style={{
-                      position: 'absolute', top: -16, left: '50%', transform: 'translateX(-50%)',
-                      background: `linear-gradient(135deg, ${plan.accent}, ${isElite ? '#ef4444' : '#7c3aed'})`,
-                      color: '#fff', fontSize: '0.72rem', fontWeight: 800,
-                      padding: '0.3rem 1rem', borderRadius: 100,
-                      whiteSpace: 'nowrap', zIndex: 10,
-                      boxShadow: `0 4px 16px ${plan.accent}50`,
-                      letterSpacing: '0.04em',
-                    }}>
-                      {isPopular ? '★ Most Popular' : '⬡ Elite'}
-                    </div>
-                  )}
-
-                  {/* Plan name */}
-                  <div style={{ fontSize: '0.8rem', fontWeight: 700, color: plan.accent, letterSpacing: '0.08em', marginBottom: '0.5rem' }}>{plan.name.toUpperCase()}</div>
-                  <p style={{ fontSize: '0.85rem', color: T.textMuted, margin: '0 0 1.5rem', lineHeight: 1.5 }}>{plan.tagline}</p>
-
-                  {/* Price */}
-                  <div style={{ marginBottom: '1.75rem' }}>
-                    <span style={{ fontSize: '2.75rem', fontWeight: 900, color: T.text, letterSpacing: '-0.04em' }}>
-                      ${billing === 'monthly' ? plan.monthly : plan.annual}
-                    </span>
-                    <span style={{ fontSize: '0.875rem', color: T.textMuted, marginLeft: '0.25rem' }}>/month</span>
-                    {billing === 'annual' && (
-                      <div style={{ fontSize: '0.78rem', color: '#10b981', marginTop: '0.25rem', fontWeight: 600 }}>
-                        Save ${(plan.monthly - plan.annual) * 12}/year
-                      </div>
-                    )}
-                  </div>
-
-                  {/* CTA button */}
-                  <Link to="/signup" style={{
-                    display: 'block', textAlign: 'center', textDecoration: 'none',
-                    padding: '0.85rem 1.5rem', borderRadius: 100, fontSize: '0.9rem', fontWeight: 700,
-                    marginBottom: '1.75rem', transition: 'all 0.2s',
-                    ...(plan.btnStyle === 'solid'
-                      ? { background: `linear-gradient(135deg, #7c3aed, ${plan.accent})`, color: '#fff', boxShadow: `0 4px 20px ${plan.accent}40` }
-                      : plan.btnStyle === 'gold'
-                        ? { background: `linear-gradient(135deg, ${plan.accent}, #ef4444)`, color: '#fff', boxShadow: `0 4px 20px ${plan.accent}40` }
-                        : { background: 'transparent', color: T.text, border: `1.5px solid ${T.borderBright}` }),
+            {/* Feature Detail */}
+            <div style={{ flex: 1, minWidth: 280 }}>
+              <AnimatePresence mode="wait">
+                <motion.div key={activeFeature}
+                  initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.2 }}
+                  className="card electric-card"
+                  style={{
+                    padding: '2.5rem',
+                    background: darkMode ? 'rgba(17,32,58,0.8)' : 'rgba(255,255,255,0.9)',
+                    border: `1px solid ${darkMode ? 'rgba(0,212,255,0.15)' : 'rgba(168,85,247,0.15)'}`,
+                    borderRadius: 20, backdropFilter: 'blur(20px)',
                   }}>
-                    {plan.name === 'Elite' ? 'Go Elite' : 'Get Started'}
-                  </Link>
-
-                  {/* Feature list */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-                    {plan.features.map(f => (
-                      <div key={f} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.85rem', color: T.textSub }}>
-                        <Check size={14} color={plan.accent} style={{ flexShrink: 0 }} />
-                        {f}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════════════════════
-          REFERRAL — PipNex pattern: full-width gradient CTA section
-      ═══════════════════════════════════════════════════════════════════════ */}
-      <section id="referral" style={{ padding: sectionPad, background: T.bg }}>
-        <div style={maxW}>
-          <div style={{
-            borderRadius: 28,
-            background: isDark
-              ? 'linear-gradient(135deg, rgba(124,58,237,0.2) 0%, rgba(0,212,255,0.1) 100%)'
-              : 'linear-gradient(135deg, rgba(124,58,237,0.08) 0%, rgba(0,212,255,0.05) 100%)',
-            border: `1px solid rgba(168,85,247,0.2)`,
-            padding: '3.5rem 3rem', textAlign: 'center',
-            position: 'relative', overflow: 'hidden',
-          }}>
-            {/* Background glow */}
-            <div style={{ position: 'absolute', top: '-50%', left: '50%', transform: 'translateX(-50%)', width: '60%', height: '200%', background: 'radial-gradient(ellipse, rgba(168,85,247,0.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
-
-            <div style={{ position: 'relative', zIndex: 1 }}>
-              <div style={{
-                display: 'inline-flex', alignItems: 'center', gap: '0.45rem',
-                background: isDark ? 'rgba(168,85,247,0.12)' : 'rgba(168,85,247,0.08)',
-                border: '1px solid rgba(168,85,247,0.25)', borderRadius: 100,
-                padding: '0.3rem 0.9rem', fontSize: '0.72rem', fontWeight: 700,
-                color: T.purple, letterSpacing: '0.08em', marginBottom: '1.25rem',
-              }}>
-                <Gift size={12} /> REFERRAL PROGRAM
-              </div>
-              <h2 style={{ fontSize: 'clamp(1.5rem, 3vw, 2.25rem)', fontWeight: 800, color: T.text, margin: '0 0 1rem', letterSpacing: '-0.025em' }}>
-                Refer Friends, Earn{' '}
-                <span style={{ color: T.purple }}>Real Money</span>
-              </h2>
-              <p style={{ color: T.textMuted, fontSize: '1rem', maxWidth: 520, margin: '0 auto 2rem', lineHeight: 1.7 }}>
-                Earn 30% recurring commission on every trader you refer. No cap, no expiry — your earnings grow as your network grows.
-              </p>
-              <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '2rem' }}>
-                {[
-                  { icon: DollarSign, label: '30% Recurring Commission' },
-                  { icon: Activity, label: 'Instant Payouts' },
-                  { icon: TrendingUp, label: 'No Earning Cap' },
-                ].map(({ icon: Icon, label }) => (
-                  <div key={label} style={{
-                    display: 'flex', alignItems: 'center', gap: '0.5rem',
-                    background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
-                    border: `1px solid ${T.border}`, borderRadius: 100,
-                    padding: '0.5rem 1rem', fontSize: '0.85rem', fontWeight: 600, color: T.text,
+                  <div style={{
+                    width: 56, height: 56, borderRadius: 14,
+                    background: darkMode ? 'rgba(0,212,255,0.1)' : 'rgba(168,85,247,0.1)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    marginBottom: '1.5rem',
                   }}>
-                    <Icon size={14} color={T.purple} /> {label}
+                    {(() => { const Icon = FEATURES[activeFeature].icon; return <Icon size={26} color="#00d4ff" />; })()}
                   </div>
-                ))}
-              </div>
-              <Link to="/signup" style={{
-                display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-                padding: '0.9rem 2.25rem', borderRadius: 100, fontSize: '0.95rem', fontWeight: 700,
-                background: 'linear-gradient(135deg, #7c3aed, #a855f7)',
-                color: '#fff', textDecoration: 'none',
-                boxShadow: '0 4px 24px rgba(168,85,247,0.4)', transition: 'all 0.2s',
-              }}>
-                Join Referral Program <ArrowRight size={16} />
-              </Link>
+                  <div style={{
+                    display: 'inline-block', padding: '3px 10px', borderRadius: 6,
+                    background: darkMode ? 'rgba(0,212,255,0.1)' : 'rgba(0,212,255,0.08)',
+                    color: '#00d4ff', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em',
+                    marginBottom: '1rem',
+                  }}>{FEATURES[activeFeature].tag}</div>
+                  <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '1rem', color: darkMode ? '#e8f4fd' : '#0f1f2e' }}>
+                    {FEATURES[activeFeature].title}
+                  </h3>
+                  <p style={{ fontSize: '1rem', lineHeight: 1.7, color: darkMode ? 'rgba(232,244,253,0.65)' : 'rgba(15,31,46,0.65)' }}>
+                    {FEATURES[activeFeature].desc}
+                  </p>
+                </motion.div>
+              </AnimatePresence>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ═══════════════════════════════════════════════════════════════════════
-          ABOUT — PipNex pattern: 4-column grid with AI engine panel
-      ═══════════════════════════════════════════════════════════════════════ */}
-      <section id="about" style={{ padding: sectionPad, background: T.bgSoft }}>
-        <div style={maxW}>
-          <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
-            <div style={{
-              display: 'inline-block',
-              background: isDark ? 'rgba(0,212,255,0.08)' : 'rgba(0,212,255,0.06)',
-              border: '1px solid rgba(0,212,255,0.2)', borderRadius: 100,
-              padding: '0.3rem 1rem', fontSize: '0.72rem', fontWeight: 700,
-              color: T.cyan, letterSpacing: '0.1em', marginBottom: '1.1rem',
-            }}>ABOUT XMX-QUANTUM</div>
-            <h2 style={{ fontSize: 'clamp(1.75rem, 3.5vw, 2.75rem)', fontWeight: 800, margin: '0 0 1rem', color: T.text, letterSpacing: '-0.025em' }}>
-              Built By Traders,{' '}
-              <span style={{ color: T.cyan }}>For Traders</span>
+        {/* ── HOW IT WORKS ─────────────────────────────────────────── */}
+        <section style={{ padding: '6rem 24px', maxWidth: 1000, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+            <div className="section-label"><RefreshCw size={12} /> PROCESS</div>
+            <h2 className="section-heading" style={{ color: darkMode ? '#e8f4fd' : '#0f1f2e' }}>
+              Live in 3 Steps
             </h2>
-            <p style={{ color: T.textMuted, fontSize: '1rem', maxWidth: 520, margin: '0 auto', lineHeight: 1.7 }}>
-              XMX-QUANTUM is developed by Quaxix Technologies — a team of professional traders and ML engineers who got tired of institutional tools being out of reach for retail traders.
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 24 }}>
+            {[
+              { n: '01', title: 'Connect Your Broker', desc: 'Link your MT4/MT5 or exchange API. Non-custodial — we never touch your funds. Setup takes under 2 minutes.' },
+              { n: '02', title: 'Configure Your Strategy', desc: 'Choose from pre-built strategies or customize your own. Set risk parameters, position sizing, and target instruments.' },
+              { n: '03', title: 'Let the AI Execute', desc: 'The terminal runs 24/7. Monitor from anywhere via the dashboard or Telegram bot. Intervene anytime.' },
+            ].map(step => (
+              <div key={step.n} className="card" style={{
+                padding: '2rem', borderRadius: 16,
+                background: darkMode ? 'rgba(17,32,58,0.7)' : 'rgba(255,255,255,0.8)',
+                border: `1px solid ${darkMode ? 'rgba(0,212,255,0.1)' : 'rgba(168,85,247,0.12)'}`,
+                backdropFilter: 'blur(16px)', textAlign: 'center',
+              }}>
+                <div style={{
+                  width: 52, height: 52, borderRadius: '50%', margin: '0 auto 1.5rem',
+                  background: 'linear-gradient(135deg, #00d4ff, #a855f7)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '1.1rem', fontWeight: 900, color: '#fff',
+                }}>{step.n}</div>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.75rem', color: darkMode ? '#e8f4fd' : '#0f1f2e' }}>{step.title}</h3>
+                <p style={{ fontSize: '0.9rem', lineHeight: 1.65, color: darkMode ? 'rgba(232,244,253,0.55)' : 'rgba(15,31,46,0.6)' }}>{step.desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── PRICING ──────────────────────────────────────────────── */}
+        <section id="pricing" style={{ padding: '6rem 24px', maxWidth: 1100, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+            <div className="section-label"><Wallet size={12} /> PRICING</div>
+            <h2 className="section-heading" style={{ color: darkMode ? '#e8f4fd' : '#0f1f2e' }}>
+              Transparent, No-Surprise Pricing
+            </h2>
+            <p className="section-subheading">14-day free trial. No credit card required.</p>
+
+            {/* Toggle */}
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12, marginTop: '1.5rem', padding: '4px', borderRadius: 9999, background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' }}>
+              <button onClick={() => setAnnual(false)} style={{
+                padding: '8px 20px', borderRadius: 9999, border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '0.875rem',
+                background: !annual ? 'linear-gradient(135deg, #00d4ff, #a855f7)' : 'transparent',
+                color: !annual ? '#fff' : (darkMode ? '#7a9ab5' : '#6b8ba4'),
+                transition: 'all 200ms',
+              }}>Monthly</button>
+              <button onClick={() => setAnnual(true)} style={{
+                padding: '8px 20px', borderRadius: 9999, border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '0.875rem',
+                background: annual ? 'linear-gradient(135deg, #00d4ff, #a855f7)' : 'transparent',
+                color: annual ? '#fff' : (darkMode ? '#7a9ab5' : '#6b8ba4'),
+                transition: 'all 200ms',
+                display: 'flex', alignItems: 'center', gap: 8,
+              }}>
+                Annual
+                <span style={{ padding: '2px 8px', borderRadius: 9999, background: 'rgba(0,255,136,0.15)', color: '#00ff88', fontSize: '0.7rem', fontWeight: 700 }}>SAVE 20%</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="pricing-cards-row" style={{ display: 'flex', gap: 24, alignItems: 'flex-start', flexWrap: 'wrap', justifyContent: 'center', paddingTop: '2.5rem' }}>
+            {PLANS.map((plan, i) => (
+              <div key={plan.name} className="pricing-card" style={{
+                flex: '1 1 0', minWidth: 260, maxWidth: 360,
+                padding: '2rem', borderRadius: 20, position: 'relative',
+                background: plan.popular
+                  ? (darkMode ? 'rgba(168,85,247,0.12)' : 'rgba(168,85,247,0.06)')
+                  : (darkMode ? 'rgba(17,32,58,0.8)' : 'rgba(255,255,255,0.9)'),
+                border: plan.popular
+                  ? '1px solid rgba(168,85,247,0.4)'
+                  : `1px solid ${darkMode ? 'rgba(0,212,255,0.1)' : 'rgba(168,85,247,0.12)'}`,
+                backdropFilter: 'blur(20px)',
+                marginTop: plan.popular ? 0 : 0,
+                overflow: 'visible',
+              }}>
+                {/* Badge */}
+                {plan.popular && (
+                  <div style={{
+                    position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)',
+                    padding: '4px 16px', borderRadius: 9999,
+                    background: 'linear-gradient(135deg, #a855f7, #7c3aed)',
+                    color: '#fff', fontSize: '0.72rem', fontWeight: 800, letterSpacing: '0.08em',
+                    whiteSpace: 'nowrap', boxShadow: '0 4px 20px rgba(168,85,247,0.5)',
+                    zIndex: 2,
+                  }}>MOST POPULAR</div>
+                )}
+                {i === 2 && (
+                  <div style={{
+                    position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)',
+                    padding: '4px 16px', borderRadius: 9999,
+                    background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                    color: '#fff', fontSize: '0.72rem', fontWeight: 800, letterSpacing: '0.08em',
+                    whiteSpace: 'nowrap', boxShadow: '0 4px 20px rgba(245,158,11,0.5)',
+                    zIndex: 2,
+                  }}>ELITE</div>
+                )}
+
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '0.5rem', color: darkMode ? '#e8f4fd' : '#0f1f2e' }}>{plan.name}</h3>
+                  <p style={{ fontSize: '0.85rem', color: darkMode ? 'rgba(232,244,253,0.5)' : 'rgba(15,31,46,0.55)', lineHeight: 1.5 }}>{plan.desc}</p>
+                </div>
+
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <span style={{ fontSize: '2.5rem', fontWeight: 900, color: plan.color }}>
+                    ${annual ? plan.annualPrice : plan.price}
+                  </span>
+                  <span style={{ color: darkMode ? 'rgba(232,244,253,0.4)' : 'rgba(15,31,46,0.45)', fontSize: '0.85rem' }}>/month</span>
+                  {annual && <div style={{ fontSize: '0.75rem', color: '#00ff88', marginTop: 4 }}>Billed annually</div>}
+                </div>
+
+                <ul style={{ listStyle: 'none', marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {plan.features.map(f => (
+                    <li key={f} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.875rem', color: darkMode ? 'rgba(232,244,253,0.75)' : 'rgba(15,31,46,0.75)' }}>
+                      <Check size={15} color="#00d4ff" strokeWidth={3} />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+
+                <Link to="/signup" style={{
+                  display: 'block', textAlign: 'center', padding: '12px 24px', borderRadius: 9999,
+                  background: plan.popular ? 'linear-gradient(135deg, #a855f7, #7c3aed)' : (darkMode ? 'rgba(0,212,255,0.1)' : 'rgba(0,212,255,0.08)'),
+                  border: plan.popular ? 'none' : `1px solid rgba(0,212,255,0.3)`,
+                  color: plan.popular ? '#fff' : '#00d4ff',
+                  textDecoration: 'none', fontWeight: 700, fontSize: '0.9rem',
+                  boxShadow: plan.popular ? '0 4px 20px rgba(168,85,247,0.4)' : 'none',
+                  transition: 'all 200ms',
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.03)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}
+                >{plan.cta}</Link>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── ABOUT ────────────────────────────────────────────────── */}
+        <section id="about" style={{ padding: '6rem 24px', maxWidth: 1100, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+            <div className="section-label"><Eye size={12} /> ABOUT</div>
+            <h2 className="section-heading" style={{ color: darkMode ? '#e8f4fd' : '#0f1f2e' }}>
+              Built By Traders, For Traders
+            </h2>
+            <p className="section-subheading">
+              XMX-QUANTUM was built because the tools serious traders need were locked behind institutional walls. We're changing that.
             </p>
           </div>
-
-          <div className="about-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem', marginBottom: '1.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 20 }}>
             {[
-              { icon: Target, title: 'Our Vision', desc: 'Democratize access to institutional-grade AI trading tools. Every retail trader deserves the same technology used by hedge funds and prop desks.', color: T.purple },
-              { icon: Brain, title: 'Our Technology', desc: 'Advanced quantum-inspired ML models analyze 6 instruments across 12 timeframes simultaneously, providing multi-dimensional market insights in real time.', color: T.cyan },
-              { icon: TrendingUp, title: 'User Benefits', desc: 'Smart AI signals, adaptive risk management, institutional analytics, and a 24/7 autonomous bot — all from a single professional-grade terminal.', color: '#10b981' },
-              { icon: Shield, title: 'Our Commitment', desc: 'Full transparency, non-custodial security, and continuous model improvement. Your capital stays in your account — always. Zero custody risk.', color: T.gold },
-            ].map(({ icon: Icon, title, desc, color }) => (
-              <div key={title} className="card" style={{
-                background: T.bgCard, border: `1px solid ${T.border}`,
-                borderRadius: 20, padding: '1.75rem',
-                transition: 'all 0.3s cubic-bezier(0.175,0.885,0.32,1.275)',
-              }}
-                onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = `${color}40`; (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-3px)'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = T.border; (e.currentTarget as HTMLDivElement).style.transform = 'none'; }}
-              >
-                <div style={{ width: 48, height: 48, borderRadius: 14, background: `${color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
-                  <Icon size={22} color={color} />
+              { icon: Target, title: 'Our Vision', desc: 'Democratize institutional-grade trading tools. Every serious retail trader deserves the same edge as a hedge fund.' },
+              { icon: Cpu, title: 'The Technology', desc: 'Multi-layer ML models, real-time order flow analysis, and sub-second execution infrastructure built from the ground up.' },
+              { icon: Users, title: 'Who We Serve', desc: 'Independent traders, prop firm traders, and small funds who demand professional tools without the enterprise price tag.' },
+              { icon: Shield, title: 'Our Commitment', desc: 'Non-custodial. Transparent. No fake metrics. We show you real performance data and let the product speak for itself.' },
+            ].map(item => (
+              <div key={item.title} className="card" style={{
+                padding: '1.75rem', borderRadius: 16,
+                background: darkMode ? 'rgba(17,32,58,0.7)' : 'rgba(255,255,255,0.8)',
+                border: `1px solid ${darkMode ? 'rgba(0,212,255,0.1)' : 'rgba(168,85,247,0.12)'}`,
+                backdropFilter: 'blur(16px)',
+              }}>
+                <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(0,212,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
+                  <item.icon size={22} color="#00d4ff" />
                 </div>
-                <h3 style={{ fontSize: '1rem', fontWeight: 700, color: T.text, margin: '0 0 0.6rem', letterSpacing: '-0.01em' }}>{title}</h3>
-                <p style={{ fontSize: '0.875rem', color: T.textMuted, lineHeight: 1.65, margin: 0 }}>{desc}</p>
+                <h3 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.6rem', color: darkMode ? '#e8f4fd' : '#0f1f2e' }}>{item.title}</h3>
+                <p style={{ fontSize: '0.875rem', lineHeight: 1.6, color: darkMode ? 'rgba(232,244,253,0.55)' : 'rgba(15,31,46,0.6)' }}>{item.desc}</p>
               </div>
             ))}
           </div>
+        </section>
 
-          {/* AI Engine panel */}
-          <div style={{
-            background: isDark
-              ? 'linear-gradient(135deg, rgba(124,58,237,0.15) 0%, rgba(0,212,255,0.08) 100%)'
-              : 'linear-gradient(135deg, rgba(124,58,237,0.06) 0%, rgba(0,212,255,0.04) 100%)',
-            border: `1px solid rgba(168,85,247,0.2)`,
-            borderRadius: 20, padding: '2rem',
-            display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem',
-          }} className="ai-engine-panel">
-            {[
-              { label: 'Instruments', value: '6', sub: 'XAU, BTC, FX, Indices' },
-              { label: 'Timeframes', value: '12', sub: 'M1 to MN' },
-              { label: 'Uptime', value: '24/7', sub: 'Cloud-hosted bots' },
-              { label: 'Status', value: 'BETA', sub: 'Early Access Open' },
-            ].map(({ label, value, sub }) => (
-              <div key={label} style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '1.75rem', fontWeight: 900, color: T.purple, letterSpacing: '-0.03em', marginBottom: '0.25rem' }}>{value}</div>
-                <div style={{ fontSize: '0.8rem', fontWeight: 700, color: T.text, marginBottom: '0.2rem' }}>{label}</div>
-                <div style={{ fontSize: '0.72rem', color: T.textMuted }}>{sub}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════════════════════
-          FAQ — PipNex pattern: centered accordion
-      ═══════════════════════════════════════════════════════════════════════ */}
-      <section id="faq" style={{ padding: sectionPad, background: T.bg }}>
-        <div style={{ maxWidth: 760, margin: '0 auto', padding: '0 1.5rem' }}>
-          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <div style={{
-              display: 'inline-block',
-              background: isDark ? 'rgba(168,85,247,0.1)' : 'rgba(168,85,247,0.08)',
-              border: '1px solid rgba(168,85,247,0.2)', borderRadius: 100,
-              padding: '0.3rem 1rem', fontSize: '0.72rem', fontWeight: 700,
-              color: T.purple, letterSpacing: '0.1em', marginBottom: '1.1rem',
-            }}>FAQ</div>
-            <h2 style={{ fontSize: 'clamp(1.75rem, 3.5vw, 2.5rem)', fontWeight: 800, margin: '0 0 1rem', color: T.text, letterSpacing: '-0.025em' }}>
-              Frequently Asked{' '}
-              <span style={{ color: T.purple }}>Questions</span>
+        {/* ── PRODUCT SHOWCASE (replaces fake testimonials) ────────── */}
+        <section style={{ padding: '6rem 24px', maxWidth: 1100, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+            <div className="section-label"><BarChart3 size={12} /> PLATFORM</div>
+            <h2 className="section-heading" style={{ color: darkMode ? '#e8f4fd' : '#0f1f2e' }}>
+              What You Get on Day One
             </h2>
           </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
+            {[
+              { icon: Bot, title: 'Autonomous Bot Engine', desc: 'Set your strategy, risk parameters, and instruments. The bot executes 24/7 — opening, managing, and closing positions with no manual intervention required.', color: '#00d4ff' },
+              { icon: LineChart, title: 'Live Equity Dashboard', desc: 'Real-time P&L tracking, equity curve visualization, drawdown monitoring, and position management — all in a single Bloomberg-style terminal view.', color: '#a855f7' },
+              { icon: Bell, title: 'Intelligent Alert System', desc: 'Multi-channel alerts via Telegram and in-app. Triggered by price action, pattern completion, bot events, or custom conditions you define.', color: '#f59e0b' },
+            ].map(item => (
+              <div key={item.title} className="card electric-card" style={{
+                padding: '2rem', borderRadius: 20,
+                background: darkMode ? 'rgba(17,32,58,0.8)' : 'rgba(255,255,255,0.9)',
+                border: `1px solid ${darkMode ? `rgba(${item.color === '#00d4ff' ? '0,212,255' : item.color === '#a855f7' ? '168,85,247' : '245,158,11'},0.2)` : 'rgba(168,85,247,0.12)'}`,
+                backdropFilter: 'blur(20px)',
+              }}>
+                <div style={{ width: 52, height: 52, borderRadius: 14, background: `${item.color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem' }}>
+                  <item.icon size={26} color={item.color} />
+                </div>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.75rem', color: darkMode ? '#e8f4fd' : '#0f1f2e' }}>{item.title}</h3>
+                <p style={{ fontSize: '0.9rem', lineHeight: 1.65, color: darkMode ? 'rgba(232,244,253,0.6)' : 'rgba(15,31,46,0.6)' }}>{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        {/* ── FAQ ──────────────────────────────────────────────────── */}
+        <section id="faq" style={{ padding: '6rem 24px', maxWidth: 720, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+            <div className="section-label"><ChevronDown size={12} /> FAQ</div>
+            <h2 className="section-heading" style={{ color: darkMode ? '#e8f4fd' : '#0f1f2e' }}>
+              Common Questions
+            </h2>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {FAQS.map((faq, i) => (
               <div key={i} style={{
-                background: T.bgCard, border: `1px solid ${openFaq === i ? 'rgba(168,85,247,0.35)' : T.border}`,
-                borderRadius: 16, overflow: 'hidden', transition: 'border-color 0.2s',
+                borderRadius: 14,
+                background: darkMode ? 'rgba(17,32,58,0.7)' : 'rgba(255,255,255,0.85)',
+                border: `1px solid ${openFaq === i ? 'rgba(0,212,255,0.3)' : (darkMode ? 'rgba(0,212,255,0.08)' : 'rgba(168,85,247,0.1)')}`,
+                overflow: 'hidden', transition: 'border-color 200ms',
               }}>
                 <button onClick={() => setOpenFaq(openFaq === i ? null : i)} style={{
-                  width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  padding: '1.1rem 1.5rem', background: 'transparent', border: 'none',
-                  cursor: 'pointer', color: T.text, fontSize: '0.95rem', fontWeight: 600,
-                  textAlign: 'left', gap: '1rem', letterSpacing: '-0.01em',
+                  width: '100%', padding: '1.25rem 1.5rem',
+                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                  background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left',
+                  color: darkMode ? '#e8f4fd' : '#0f1f2e', fontWeight: 600, fontSize: '0.95rem',
                 }}>
                   {faq.q}
-                  {openFaq === i ? <ChevronUp size={18} color={T.purple} style={{ flexShrink: 0 }} /> : <ChevronDown size={18} color={T.textMuted} style={{ flexShrink: 0 }} />}
+                  <motion.div animate={{ rotate: openFaq === i ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                    <ChevronDown size={18} color={openFaq === i ? '#00d4ff' : (darkMode ? '#7a9ab5' : '#6b8ba4')} />
+                  </motion.div>
                 </button>
                 <AnimatePresence>
                   {openFaq === i && (
                     <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }}>
-                      <div style={{ padding: '0 1.5rem 1.25rem', fontSize: '0.9rem', color: T.textMuted, lineHeight: 1.7, borderTop: `1px solid ${T.border}`, paddingTop: '1rem' }}>
+                      <p style={{ padding: '0 1.5rem 1.25rem', fontSize: '0.9rem', lineHeight: 1.7, color: darkMode ? 'rgba(232,244,253,0.6)' : 'rgba(15,31,46,0.65)' }}>
                         {faq.a}
-                      </div>
+                      </p>
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ═══════════════════════════════════════════════════════════════════════
-          FINAL CTA — PipNex pattern: full-width gradient band
-      ═══════════════════════════════════════════════════════════════════════ */}
-      <section style={{ padding: '5rem 1.5rem', background: T.bgSoft }}>
-        <div style={{ ...maxW, textAlign: 'center' }}>
+        {/* ── CTA SECTION ──────────────────────────────────────────── */}
+        <section style={{ padding: '6rem 24px', textAlign: 'center' }}>
           <div style={{
-            borderRadius: 28, padding: '4rem 2rem',
-            background: isDark
-              ? 'linear-gradient(135deg, #0d0820 0%, #0a1628 50%, #080b14 100%)'
-              : 'linear-gradient(135deg, #f5f3ff 0%, #eff6ff 50%, #f0fdf4 100%)',
-            border: `1px solid ${T.border}`,
-            position: 'relative', overflow: 'hidden',
+            maxWidth: 700, margin: '0 auto', padding: '4rem 2rem', borderRadius: 24,
+            background: darkMode ? 'rgba(17,32,58,0.8)' : 'rgba(255,255,255,0.9)',
+            border: `1px solid ${darkMode ? 'rgba(0,212,255,0.15)' : 'rgba(168,85,247,0.2)'}`,
+            backdropFilter: 'blur(20px)',
+            boxShadow: darkMode ? '0 0 80px rgba(0,212,255,0.08)' : '0 20px 60px rgba(168,85,247,0.1)',
           }}>
-            <div style={{ position: 'absolute', top: '-30%', left: '50%', transform: 'translateX(-50%)', width: '80%', height: '160%', background: 'radial-gradient(ellipse, rgba(168,85,247,0.15) 0%, transparent 70%)', pointerEvents: 'none' }} />
-            <div style={{ position: 'relative', zIndex: 1 }}>
-              <h2 style={{ fontSize: 'clamp(1.75rem, 3.5vw, 2.75rem)', fontWeight: 900, color: T.text, margin: '0 0 1rem', letterSpacing: '-0.03em' }}>
-                Ready to Trade Smarter?
-              </h2>
-              <p style={{ color: T.textMuted, fontSize: '1.05rem', maxWidth: 480, margin: '0 auto 2.5rem', lineHeight: 1.7 }}>
-                Join XMX-QUANTUM Beta today. 14-day money-back guarantee. No credit card required to start.
-              </p>
-              <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-                <Link to="/signup" style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-                  padding: '1rem 2.5rem', borderRadius: 100, fontSize: '1rem', fontWeight: 700,
-                  background: 'linear-gradient(135deg, #7c3aed, #a855f7, #00d4ff)',
-                  color: '#fff', textDecoration: 'none',
-                  boxShadow: '0 4px 28px rgba(168,85,247,0.45)', transition: 'all 0.2s',
-                }}>
-                  Start Free Trial <ArrowRight size={18} />
-                </Link>
-                <Link to="/login" style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-                  padding: '1rem 2.5rem', borderRadius: 100, fontSize: '1rem', fontWeight: 600,
-                  background: 'transparent', color: T.text, textDecoration: 'none',
-                  border: `1.5px solid ${T.borderBright}`, transition: 'all 0.2s',
-                }}>
-                  Sign In
-                </Link>
-              </div>
-            </div>
+            <h2 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', fontWeight: 900, letterSpacing: '-0.03em', marginBottom: '1rem', color: darkMode ? '#e8f4fd' : '#0f1f2e' }}>
+              Ready to Trade Like an Institution?
+            </h2>
+            <p style={{ fontSize: '1rem', color: darkMode ? 'rgba(232,244,253,0.55)' : 'rgba(15,31,46,0.6)', marginBottom: '2rem', lineHeight: 1.6 }}>
+              Join the early access program. 14 days free. No credit card required.
+            </p>
+            <Link to="/signup" style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              padding: '14px 32px', borderRadius: 9999,
+              background: 'linear-gradient(135deg, #00d4ff, #a855f7)',
+              color: '#fff', textDecoration: 'none', fontWeight: 700, fontSize: '1rem',
+              boxShadow: '0 0 30px rgba(0,212,255,0.4)',
+              transition: 'all 200ms',
+            }}
+              onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.04)'; e.currentTarget.style.boxShadow = '0 0 50px rgba(0,212,255,0.6)'; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 0 30px rgba(0,212,255,0.4)'; }}
+            >
+              Start Free Trial <ArrowRight size={18} />
+            </Link>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ═══════════════════════════════════════════════════════════════════════
-          FOOTER — PipNex pattern: 4-column grid + bottom bar
-      ═══════════════════════════════════════════════════════════════════════ */}
-      <footer style={{ background: isDark ? '#050710' : '#0f172a', color: '#94a3b8', padding: '4rem 1.5rem 2rem' }}>
-        <div style={maxW}>
-          <div className="footer-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: '3rem', marginBottom: '3rem' }}>
-            {/* Brand column */}
-            <div>
-              <div style={{ marginBottom: '1.25rem' }}>
-                <LogoIcon size={32} showWordmark wordmarkSize={14} wordmarkColor="#f1f5f9" showSubtitle subtitleColor="#475569" />
+        {/* ── FOOTER ───────────────────────────────────────────────── */}
+        <footer style={{
+          padding: '3rem 24px 2rem',
+          borderTop: `1px solid ${darkMode ? 'rgba(0,212,255,0.08)' : 'rgba(168,85,247,0.1)'}`,
+          background: darkMode ? 'rgba(10,22,40,0.9)' : 'rgba(255,255,255,0.9)',
+        }}>
+          <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+            <div className="footer-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 32, marginBottom: '2rem' }}>
+              <div>
+                <LogoIcon size={28} showWordmark showSubtitle wordmarkColor={darkMode ? '#e8f4fd' : '#0f1f2e'} subtitleColor={darkMode ? '#7a9ab5' : '#6b8ba4'} wordmarkSize={13} />
+                <p style={{ marginTop: '1rem', fontSize: '0.8rem', lineHeight: 1.6, color: darkMode ? 'rgba(232,244,253,0.4)' : 'rgba(15,31,46,0.45)', maxWidth: 200 }}>
+                  Institutional-grade AI trading terminal. BETA — Early Access.
+                </p>
               </div>
-              <p style={{ fontSize: '0.875rem', lineHeight: 1.7, color: '#64748b', maxWidth: 280, marginBottom: '1.5rem' }}>
-                Institutional-grade Quantum AI trading terminal. Built for serious retail traders by Quaxix Technologies.
-              </p>
-              <div style={{ display: 'flex', gap: '0.75rem' }}>
-                {['T', 'X', 'in', 'YT'].map(s => (
-                  <div key={s} style={{
-                    width: 34, height: 34, borderRadius: 8,
-                    background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '0.72rem', fontWeight: 700, color: '#64748b', cursor: 'pointer',
-                  }}>{s}</div>
+              <div>
+                <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: darkMode ? '#7a9ab5' : '#6b8ba4', marginBottom: '1rem' }}>Platform</div>
+                {['Dashboard', 'Signals', 'Bot Control', 'Analytics', 'Leaderboard'].map(l => (
+                  <Link key={l} to="/login" style={{ display: 'block', fontSize: '0.85rem', color: darkMode ? 'rgba(232,244,253,0.5)' : 'rgba(15,31,46,0.55)', textDecoration: 'none', marginBottom: 8, transition: 'color 200ms' }}
+                    onMouseEnter={e => (e.currentTarget.style.color = '#00d4ff')}
+                    onMouseLeave={e => (e.currentTarget.style.color = darkMode ? 'rgba(232,244,253,0.5)' : 'rgba(15,31,46,0.55)')}
+                  >{l}</Link>
+                ))}
+              </div>
+              <div>
+                <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: darkMode ? '#7a9ab5' : '#6b8ba4', marginBottom: '1rem' }}>Company</div>
+                {['About', 'Pricing', 'FAQ', 'Changelog'].map(l => (
+                  <button key={l} onClick={() => scrollTo(l.toLowerCase())} style={{ display: 'block', fontSize: '0.85rem', color: darkMode ? 'rgba(232,244,253,0.5)' : 'rgba(15,31,46,0.55)', background: 'none', border: 'none', cursor: 'pointer', padding: '0 0 8px', transition: 'color 200ms' }}
+                    onMouseEnter={e => (e.currentTarget.style.color = '#00d4ff')}
+                    onMouseLeave={e => (e.currentTarget.style.color = darkMode ? 'rgba(232,244,253,0.5)' : 'rgba(15,31,46,0.55)')}
+                  >{l}</button>
+                ))}
+              </div>
+              <div>
+                <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: darkMode ? '#7a9ab5' : '#6b8ba4', marginBottom: '1rem' }}>Legal</div>
+                {['Privacy Policy', 'Terms of Service', 'Risk Disclosure', 'Cookie Policy'].map(l => (
+                  <a key={l} href="#" style={{ display: 'block', fontSize: '0.85rem', color: darkMode ? 'rgba(232,244,253,0.5)' : 'rgba(15,31,46,0.55)', textDecoration: 'none', marginBottom: 8, transition: 'color 200ms' }}
+                    onMouseEnter={e => (e.currentTarget.style.color = '#00d4ff')}
+                    onMouseLeave={e => (e.currentTarget.style.color = darkMode ? 'rgba(232,244,253,0.5)' : 'rgba(15,31,46,0.55)')}
+                  >{l}</a>
                 ))}
               </div>
             </div>
-
-            {/* Platform */}
-            <div>
-              <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#f1f5f9', letterSpacing: '0.08em', marginBottom: '1.25rem' }}>PLATFORM</div>
-              {['Dashboard', 'Signals', 'Bot Control', 'Analytics', 'Trade Journal', 'Leaderboard'].map(l => (
-                <div key={l} style={{ marginBottom: '0.6rem' }}>
-                  <Link to="/dashboard" style={{ textDecoration: 'none', color: '#64748b', fontSize: '0.875rem', transition: 'color 0.2s' }}
-                    onMouseEnter={e => { e.currentTarget.style.color = '#a855f7'; }}
-                    onMouseLeave={e => { e.currentTarget.style.color = '#64748b'; }}
-                  >{l}</Link>
-                </div>
-              ))}
-            </div>
-
-            {/* Company */}
-            <div>
-              <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#f1f5f9', letterSpacing: '0.08em', marginBottom: '1.25rem' }}>COMPANY</div>
-              {['About', 'Pricing', 'Referral Program', 'Blog', 'Careers', 'Contact'].map(l => (
-                <div key={l} style={{ marginBottom: '0.6rem' }}>
-                  <a href="#about" style={{ textDecoration: 'none', color: '#64748b', fontSize: '0.875rem', transition: 'color 0.2s' }}
-                    onMouseEnter={e => { e.currentTarget.style.color = '#a855f7'; }}
-                    onMouseLeave={e => { e.currentTarget.style.color = '#64748b'; }}
-                  >{l}</a>
-                </div>
-              ))}
-            </div>
-
-            {/* Legal */}
-            <div>
-              <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#f1f5f9', letterSpacing: '0.08em', marginBottom: '1.25rem' }}>LEGAL</div>
-              {['Privacy Policy', 'Terms of Service', 'Refund Policy', 'Risk Disclosure', 'Cookie Policy'].map(l => (
-                <div key={l} style={{ marginBottom: '0.6rem' }}>
-                  <a href="#" style={{ textDecoration: 'none', color: '#64748b', fontSize: '0.875rem', transition: 'color 0.2s' }}
-                    onMouseEnter={e => { e.currentTarget.style.color = '#a855f7'; }}
-                    onMouseLeave={e => { e.currentTarget.style.color = '#64748b'; }}
-                  >{l}</a>
-                </div>
-              ))}
+            <div style={{ borderTop: `1px solid ${darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'}`, paddingTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+              <p style={{ fontSize: '0.78rem', color: darkMode ? 'rgba(232,244,253,0.3)' : 'rgba(15,31,46,0.4)' }}>
+                © 2025 Quaxix Technologies. XMX-QUANTUM is in BETA. Trading involves risk.
+              </p>
+              <p style={{ fontSize: '0.78rem', color: darkMode ? 'rgba(232,244,253,0.3)' : 'rgba(15,31,46,0.4)' }}>
+                256-bit SSL · Non-Custodial · BETA
+              </p>
             </div>
           </div>
+        </footer>
+      </div>
 
-          {/* Bottom bar */}
-          <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '1.75rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
-            <div style={{ fontSize: '0.8rem', color: '#475569' }}>
-              © 2025 Quaxix Technologies Ltd. All rights reserved. XMX-QUANTUM is in Beta — trading involves substantial risk.
-            </div>
-            <div style={{ display: 'flex', gap: '1.5rem' }}>
-              {['Privacy', 'Terms', 'Refund'].map(l => (
-                <a key={l} href="#" style={{ textDecoration: 'none', color: '#475569', fontSize: '0.8rem', transition: 'color 0.2s' }}
-                  onMouseEnter={e => { e.currentTarget.style.color = '#a855f7'; }}
-                  onMouseLeave={e => { e.currentTarget.style.color = '#475569'; }}
-                >{l}</a>
-              ))}
-            </div>
-          </div>
-        </div>
-      </footer>
-
-      {/* ─── Responsive styles ─────────────────────────────────────────────── */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap');
-
-        .landing-nav-links { display: flex !important; }
-        .landing-nav-right { display: flex !important; }
-        .landing-hamburger { display: none !important; }
-
-        .hero-stat-cards { grid-template-columns: repeat(3, 1fr); }
-        .features-grid-3col { grid-template-columns: repeat(3, 1fr); }
-        .steps-grid { grid-template-columns: repeat(3, 1fr); }
-        .about-grid { grid-template-columns: repeat(2, 1fr); }
-        .ai-engine-panel { grid-template-columns: repeat(4, 1fr); }
-        .footer-grid { grid-template-columns: 2fr 1fr 1fr 1fr; }
-        .pricing-cards-row { flex-direction: row; }
-
-        @media (max-width: 1024px) {
-          .features-grid-3col { grid-template-columns: repeat(2, 1fr) !important; }
-          .footer-grid { grid-template-columns: 1fr 1fr !important; gap: 2rem !important; }
-          .ai-engine-panel { grid-template-columns: repeat(2, 1fr) !important; }
-        }
-
+        @keyframes cursor-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        @keyframes glow-pulse { 0%, 100% { opacity: 0.7; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); } }
+        @keyframes cta-pulse { 0%, 100% { box-shadow: 0 0 30px rgba(0,212,255,0.4); } 50% { box-shadow: 0 0 50px rgba(0,212,255,0.65), 0 0 80px rgba(168,85,247,0.3); } }
+        .nav-links-desktop { display: flex !important; }
+        .mobile-menu-btn { display: none !important; }
         @media (max-width: 768px) {
-          .landing-nav-links { display: none !important; }
-          .landing-nav-right { display: none !important; }
-          .landing-hamburger { display: flex !important; }
-          .hero-stat-cards { grid-template-columns: 1fr !important; max-width: 360px !important; }
-          .features-grid-3col { grid-template-columns: 1fr !important; }
-          .steps-grid { grid-template-columns: 1fr !important; }
-          .steps-connector { display: none !important; }
-          .pricing-cards-row { flex-direction: column !important; align-items: stretch !important; }
-          .pricing-cards-row > * { transform: none !important; margin-top: 0 !important; }
-          .about-grid { grid-template-columns: 1fr !important; }
-          .ai-engine-panel { grid-template-columns: repeat(2, 1fr) !important; }
-          .footer-grid { grid-template-columns: 1fr !important; gap: 2rem !important; }
-          .hero-cta-row { flex-direction: column !important; align-items: center !important; }
-          .hero-cta-row a { width: 100% !important; max-width: 320px !important; justify-content: center !important; }
+          .nav-links-desktop { display: none !important; }
+          .mobile-menu-btn { display: flex !important; }
+          .nav-cta-btn { display: none !important; }
+          .hero-cta-row { flex-direction: column; align-items: center; }
+          .hero-trust-row { gap: 12px !important; }
+          .pricing-cards-row { flex-direction: column; align-items: center; }
+          .pricing-cards-row > div { max-width: 100% !important; width: 100%; }
+          .footer-grid { grid-template-columns: 1fr 1fr !important; }
         }
-
         @media (max-width: 480px) {
-          .ai-engine-panel { grid-template-columns: 1fr 1fr !important; }
-          .hero-stat-cards { grid-template-columns: 1fr !important; }
+          .footer-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
     </div>
   );
-};
-
-export default LandingPage;
+}

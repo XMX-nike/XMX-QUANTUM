@@ -146,7 +146,7 @@ const DashboardPage: React.FC = () => {
   ];
 
   const sentimentColor = (s: string) => s === 'bullish' ? 'var(--green)' : s === 'bearish' ? 'var(--red)' : 'var(--text-muted)';
-  const sentimentLabel = (s: string) => s === 'bullish' ? '🟢 Bullish' : s === 'bearish' ? '🔴 Bearish' : '⚪ Neutral';
+  const sentimentLabel = (s: string) => s === 'bullish' ? '+ Bullish' : s === 'bearish' ? '- Bearish' : '~ Neutral';
 
   const displayCurve = equityCurve.filter((_, i) => i % 3 === 0 || i === equityCurve.length - 1);
 

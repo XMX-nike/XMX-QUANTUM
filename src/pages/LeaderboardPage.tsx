@@ -6,7 +6,7 @@ import { generateLeaderboard } from '../data/mockData';
 const LEADERBOARD = generateLeaderboard();
 
 const MEDAL_COLORS = ['#FFD700', '#C0C0C0', '#CD7F32'];
-const MEDAL_EMOJIS = ['🥇', '🥈', '🥉'];
+const MEDAL_LABELS = ['#1', '#2', '#3'];
 
 const LeaderboardPage: React.FC = () => {
   return (
@@ -49,7 +49,7 @@ const LeaderboardPage: React.FC = () => {
                 position: 'relative',
               }}
             >
-              <div style={{ position: 'absolute', top: '-20px', fontSize: '2rem' }}>{MEDAL_EMOJIS[actualRank]}</div>
+              <div style={{ position: 'absolute', top: '-20px', width: 36, height: 36, borderRadius: '50%', background: MEDAL_COLORS[actualRank], display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '0.85rem', color: '#000', boxShadow: `0 0 12px ${MEDAL_COLORS[actualRank]}88` }}>{MEDAL_LABELS[actualRank]}</div>
               <div style={{ fontSize: '1.5rem', marginBottom: '0.25rem' }}>
                 {entry.username[0]}
               </div>
@@ -96,7 +96,7 @@ const LeaderboardPage: React.FC = () => {
                   <td data-label="Rank">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       {i < 3 ? (
-                        <span style={{ fontSize: '1.1rem' }}>{MEDAL_EMOJIS[i]}</span>
+                        <span style={{ width: 24, height: 24, borderRadius: '50%', background: MEDAL_COLORS[i], display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '0.7rem', color: '#000' }}>{MEDAL_LABELS[i]}</span>
                       ) : (
                         <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--text-muted)', fontSize: '0.85rem', width: 24, textAlign: 'center' }}>#{entry.rank}</span>
                       )}
@@ -143,7 +143,7 @@ const LeaderboardPage: React.FC = () => {
       </motion.div>
 
       <div style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-        🔒 All usernames are anonymized · Rankings update every hour · Only Pro & Elite accounts are eligible
+        [SSL] All usernames are anonymized · Rankings update every hour · Only Pro & Elite accounts are eligible
       </div>
     </div>
   );

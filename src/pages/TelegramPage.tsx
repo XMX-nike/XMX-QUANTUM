@@ -149,7 +149,7 @@ const TelegramPage: React.FC = () => {
               margin: 0,
             }}>{SIGNAL_PREVIEW}</pre>
             <div style={{ fontSize: '0.65rem', color: '#4a6a85', textAlign: 'right', marginTop: '0.5rem' }}>
-              {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })} ✓✓
+              {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })} Read
             </div>
           </div>
 
