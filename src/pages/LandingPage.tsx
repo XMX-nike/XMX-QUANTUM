@@ -10,6 +10,7 @@ import {
 import { useTrading } from '../context/TradingContext';
 import LogoIcon from '../components/LogoIcon';
 import ParticleBackground from '../components/ParticleBackground';
+import HeroErrorBoundary from '../components/HeroErrorBoundary';
 
 // Lazy-load 3D hero (heavy Three.js bundle) — only on desktop
 const HolographicHero = lazy(() => import('../components/HolographicHero'));
@@ -34,7 +35,12 @@ function useTypewriter(phrases: string[], typingSpeed = 45, deletingSpeed = 25, 
   const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
-    const current = phrases[phraseIdx];
+    // Guard: if phrases is empty or undefined, do nothing
+    if (!phrases || phrases.length === 0) return;
+    const safeIdx = phraseIdx % phrases.length;
+    const current = phrases[safeIdx] ?? '';
+    if (!current) return;
+
     if (isPaused) {
       const t = setTimeout(() => {
         setIsPaused(false);
@@ -115,8 +121,8 @@ export default function LandingPage() {
   const [annual, setAnnual] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [activeFeature, setActiveFeature] = useState(0);
-  // Only run typewriter on mobile (desktop uses 3D hero)
-  const typewriterText = useTypewriter(IS_MOBILE ? PHRASES : []);
+  // Always run typewriter — used on mobile AND as ErrorBoundary fallback on desktop
+  const typewriterText = useTypewriter(PHRASES);
 
   const scrollTo = useCallback((id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
@@ -312,41 +318,48 @@ export default function LandingPage() {
             </h1>
 
             {/* Desktop: 3D holographic text | Mobile: typewriter fallback */}
-            {IS_MOBILE ? (
-              <h1 style={{
-                fontSize: 'clamp(1.8rem, 5vw, 4.5rem)',
-                fontWeight: 900,
-                letterSpacing: '-0.03em',
-                lineHeight: 1.1,
-                minHeight: '1.2em',
-                fontFamily: "'Space Grotesk', 'Inter', sans-serif",
-                background: `linear-gradient(${90 + hue * 0.1}deg, #00d4ff, #a855f7)`,
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}>
-                {typewriterText}
-                <span style={{
-                  display: 'inline-block', width: 3, height: '0.85em',
-                  background: '#00d4ff', marginLeft: 2, verticalAlign: 'middle',
-                  animation: 'cursor-blink 500ms step-end infinite',
-                }} />
-              </h1>
-            ) : (
-              <Suspense fallback={
-                <div style={{ height: 220, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-                  {[0,1,2].map(i => (
-                    <div key={i} style={{
-                      width: 8, height: 8, borderRadius: '50%',
-                      background: 'linear-gradient(135deg, #00d4ff, #a855f7)',
-                      animation: `dot-pulse 1.2s ease-in-out ${i * 0.2}s infinite`,
-                    }} />
-                  ))}
-                </div>
-              }>
-                <HolographicHero darkMode={darkMode} height={220} />
-              </Suspense>
-            )}
+            {/* TypewriterH1 is reused as the ErrorBoundary fallback on desktop too */}
+            {(() => {
+              const TypewriterH1 = (
+                <h1 style={{
+                  fontSize: 'clamp(1.8rem, 5vw, 4.5rem)',
+                  fontWeight: 900,
+                  letterSpacing: '-0.03em',
+                  lineHeight: 1.1,
+                  minHeight: '1.2em',
+                  fontFamily: "'Space Grotesk', 'Inter', sans-serif",
+                  background: `linear-gradient(${90 + hue * 0.1}deg, #00d4ff, #a855f7)`,
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}>
+                  {typewriterText}
+                  <span style={{
+                    display: 'inline-block', width: 3, height: '0.85em',
+                    background: '#00d4ff', marginLeft: 2, verticalAlign: 'middle',
+                    animation: 'cursor-blink 500ms step-end infinite',
+                  }} />
+                </h1>
+              );
+              if (IS_MOBILE) return TypewriterH1;
+              return (
+                <HeroErrorBoundary fallback={TypewriterH1}>
+                  <Suspense fallback={
+                    <div style={{ height: 220, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                      {[0,1,2].map(i => (
+                        <div key={i} style={{
+                          width: 8, height: 8, borderRadius: '50%',
+                          background: 'linear-gradient(135deg, #00d4ff, #a855f7)',
+                          animation: `dot-pulse 1.2s ease-in-out ${i * 0.2}s infinite`,
+                        }} />
+                      ))}
+                    </div>
+                  }>
+                    <HolographicHero darkMode={darkMode} height={220} />
+                  </Suspense>
+                </HeroErrorBoundary>
+              );
+            })()}
           </motion.div>
 
           {/* Subtitle */}
