@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend } from 'recharts';
 import { DollarSign, TrendingUp, TrendingDown, Percent, Activity, Layers, Clock, Newspaper } from 'lucide-react';
 import { useTrading } from '../context/TradingContext';
-import { SUMMARY_STATS } from '../data/mockData';
 
 // ===== Fear & Greed SVG Arc Gauge =====
 const FearGreedGauge: React.FC<{ value: number }> = ({ value }) => {
@@ -156,7 +155,10 @@ const DashboardPage: React.FC = () => {
       {/* Stat Cards */}
       <div className="stats-grid" style={{ marginBottom: '1.25rem' }}>
         {STAT_CARDS.map(({ label, value, icon: Icon, color, change }, i) => (
-          <motion.div key={label} className="stat-card" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}>
+          <motion.div key={label} className="stat-card" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}
+            onClick={e => { const el = e.currentTarget; el.classList.remove('card-jiggle'); void el.offsetWidth; el.classList.add('card-jiggle'); setTimeout(() => el.classList.remove('card-jiggle'), 500); }}
+            style={{ cursor: 'pointer' }}
+          >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
                 <div className="label">{label}</div>

@@ -20,7 +20,7 @@ const SignalsPage: React.FC = () => {
     <div className="page-wrapper">
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginRight: 'auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <Zap size={20} color="var(--cyan)" />
           <h1 style={{ fontSize: '1.25rem', fontWeight: 800 }}>AI Signal Feed</h1>
           <div className="status-dot" />
@@ -28,13 +28,13 @@ const SignalsPage: React.FC = () => {
         </div>
 
         {/* Filters */}
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap', marginLeft: 'auto' }}>
           <Filter size={14} color="var(--text-muted)" />
-          <select className="form-input" style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem', width: 'auto' }} value={filterSym} onChange={e => setFilterSym(e.target.value)}>
+          <select className="form-input" style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem', flex: '1 1 120px', minWidth: 120 }} value={filterSym} onChange={e => setFilterSym(e.target.value)}>
             <option value="All">All Symbols</option>
             {SYMBOLS.map(s => <option key={s} value={s}>{s}</option>)}
           </select>
-          <select className="form-input" style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem', width: 'auto' }} value={filterTf} onChange={e => setFilterTf(e.target.value)}>
+          <select className="form-input" style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem', flex: '1 1 120px', minWidth: 120 }} value={filterTf} onChange={e => setFilterTf(e.target.value)}>
             <option value="All">All Timeframes</option>
             {TIMEFRAMES.map(t => <option key={t} value={t}>{t}</option>)}
           </select>

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LineChart, Line, ResponsiveContainer } from 'recharts';
-import { X, TrendingUp, TrendingDown } from 'lucide-react';
+import { TrendingUp, TrendingDown } from 'lucide-react';
 import { useTrading } from '../context/TradingContext';
 import type { Position } from '../data/mockData';
 
@@ -116,7 +116,7 @@ const PositionsPage: React.FC = () => {
       </motion.div>
 
       <div style={{ marginTop: '0.75rem', fontSize: '0.72rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-        ⚡ Rows flash green/red on P&L change · Click Close to manually exit a position
+        ▶ Rows flash green/red on P&L change · Click Close to manually exit a position
       </div>
     </div>
   );

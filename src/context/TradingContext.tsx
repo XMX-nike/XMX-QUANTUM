@@ -187,7 +187,7 @@ export const TradingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setSignals(prev => [{
           id: `sig-live-${tick}`,
           symbol: sym,
-          direction: Math.random() > 0.5 ? 'BUY' : 'SELL',
+          direction: (Math.random() > 0.5 ? 'BUY' : 'SELL') as 'BUY' | 'SELL',
           timeframe: ['M15', 'H1', 'H4'][Math.floor(Math.random() * 3)],
           confidence: Math.round(55 + Math.random() * 40),
           strategy: STRATEGIES[Math.floor(Math.random() * STRATEGIES.length)],
@@ -213,6 +213,16 @@ export const TradingProvider: React.FC<{ children: React.ReactNode }> = ({ child
   }, []);
 
   const setBotMode = useCallback((mode: string) => setBotModeState(mode), []);
+  // Apply theme to document root so CSS variables take effect globally
+  useEffect(() => {
+    const root = document.documentElement;
+    if (darkMode) {
+      root.removeAttribute('data-theme');
+    } else {
+      root.setAttribute('data-theme', 'light');
+    }
+  }, [darkMode]);
+
   const toggleDarkMode = useCallback(() => setDarkMode(prev => !prev), []);
 
   const executeQuickTrade = useCallback((symbol: string, dir: 'BUY' | 'SELL', lots: number, sl: number, tp: number) => {
@@ -226,7 +236,7 @@ export const TradingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setPositions(prev => [...prev, newPos]);
     setBotLogs(prev => [{
       id: `log-qt-${Date.now()}`, time: new Date().toLocaleTimeString(),
-      level: 'success', message: `MANUAL TRADE: ${symbol} ${dir} ${lots} lots opened`,
+          level: 'success' as const, message: `MANUAL TRADE: ${symbol} ${dir} ${lots} lots opened`,
     }, ...prev].slice(0, 20));
   }, []);
 
@@ -239,7 +249,7 @@ export const TradingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setTodayPnl(p => +(p + capped).toFixed(2));
         setBotLogs(prev2 => [{
           id: `log-close-${Date.now()}`, time: new Date().toLocaleTimeString(),
-          level: capped >= 0 ? 'success' : 'warn',
+          level: (capped >= 0 ? 'success' : 'warn') as 'success' | 'warn',
           message: `POSITION CLOSED: ${pos.symbol} ${pos.direction} ${capped >= 0 ? '+' : ''}$${capped.toFixed(2)}`,
         }, ...prev2].slice(0, 20));
       }

@@ -24,7 +24,12 @@ const QuickTrade: React.FC<Props> = ({ onClose }) => {
   if (done) {
     return (
       <div style={{ textAlign: 'center', padding: '2rem 0' }}>
-        <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>✅</div>
+        <div style={{ marginBottom: '0.5rem', display: 'flex', justifyContent: 'center' }}>
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+            <circle cx="20" cy="20" r="20" fill="rgba(0,255,136,0.15)"/>
+            <path d="M12 20l6 6 10-12" stroke="#00ff88" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
         <div style={{ fontWeight: 700, color: 'var(--green)', fontSize: '1.1rem' }}>Trade Executed!</div>
         <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '0.25rem' }}>{symbol} {dir} {lots} lots</div>
       </div>
@@ -65,12 +70,12 @@ const QuickTrade: React.FC<Props> = ({ onClose }) => {
       </div>
 
       {/* SL & TP */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-        <div className="form-group">
+      <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+        <div className="form-group" style={{ flex: '1 1 120px', minWidth: 120 }}>
           <label className="form-label">Stop Loss</label>
           <input className="form-input" type="number" placeholder={`${(base * 0.997).toFixed(2)}`} value={sl} onChange={e => setSl(e.target.value)} />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ flex: '1 1 120px', minWidth: 120 }}>
           <label className="form-label">Take Profit</label>
           <input className="form-input" type="number" placeholder={`${(base * 1.006).toFixed(2)}`} value={tp} onChange={e => setTp(e.target.value)} />
         </div>

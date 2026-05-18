@@ -97,6 +97,7 @@ const rng = seededRng(42);
 function rand(min: number, max: number) {
   return min + rng() * (max - min);
 }
+void rand; // suppress unused warning
 
 function pick<T>(arr: T[]): T {
   return arr[Math.floor(rng() * arr.length)];
@@ -252,17 +253,17 @@ export function generateTrades(): Trade[] {
 
 // ===== Alerts =====
 export function generateAlerts(): Alert[] {
-  const severities: Alert['severity'][] = ['low', 'medium', 'high', 'critical'];
   const rng6 = seededRng(33);
+  void rng6; // suppress unused warning
   const alerts: Alert[] = [
-    { id: 'a1', type: 'whale', severity: 'critical', title: '🐋 Whale Alert: BTC', description: '42,000 BTC moved to cold storage — potential sell pressure incoming', timestamp: '2m ago', read: false },
-    { id: 'a2', type: 'sentiment', severity: 'high', title: '📊 Sentiment Flip: XAUUSDm', description: 'Gold sentiment shifted from Bearish to Strongly Bullish across 18 major indicators', timestamp: '7m ago', read: false },
-    { id: 'a3', type: 'manipulation', severity: 'high', title: '⚠️ Manipulation Detected: NASDAQm', description: 'Unusual coordinated order pattern detected — likely algo wash trading', timestamp: '15m ago', read: false },
-    { id: 'a4', type: 'signal', severity: 'medium', title: '🎯 AI Signal Confidence: EURUSD', description: 'ML model confidence dropped below 60% threshold — reducing position size recommended', timestamp: '23m ago', read: true },
-    { id: 'a5', type: 'whale', severity: 'medium', title: '🐋 Large Options Activity: GBPUSD', description: '$200M in GBPUSD puts purchased ahead of BOE announcement', timestamp: '41m ago', read: true },
-    { id: 'a6', type: 'sentiment', severity: 'low', title: '📰 News Sentiment: ETH', description: 'ETH news sentiment trending positive — 73% bullish across 140 sources', timestamp: '1h ago', read: true },
-    { id: 'a7', type: 'manipulation', severity: 'critical', title: '🚨 Coordinated Pump Detected: US30m', description: 'Multiple broker feeds showing 2-pip discrepancies suggesting coordinated manipulation', timestamp: '1.5h ago', read: true },
-    { id: 'a8', type: 'signal', severity: 'low', title: '✅ Bot Milestone Reached', description: 'XMX-QUANTUM bot completed 250 trades — ML model retraining triggered', timestamp: '2h ago', read: true },
+    { id: 'a1', type: 'whale', severity: 'critical', title: '◆ Whale Alert: BTC', description: '42,000 BTC moved to cold storage — potential sell pressure incoming', timestamp: '2m ago', read: false },
+    { id: 'a2', type: 'sentiment', severity: 'high', title: '■ Sentiment Flip: XAUUSDm', description: 'Gold sentiment shifted from Bearish to Strongly Bullish across 18 major indicators', timestamp: '7m ago', read: false },
+    { id: 'a3', type: 'manipulation', severity: 'high', title: '⚠ Manipulation Detected: NASDAQm', description: 'Unusual coordinated order pattern detected — likely algo wash trading', timestamp: '15m ago', read: false },
+    { id: 'a4', type: 'signal', severity: 'medium', title: '◎ AI Signal Confidence: EURUSD', description: 'ML model confidence dropped below 60% threshold — reducing position size recommended', timestamp: '23m ago', read: true },
+    { id: 'a5', type: 'whale', severity: 'medium', title: '◆ Large Options Activity: GBPUSD', description: '$200M in GBPUSD puts purchased ahead of BOE announcement', timestamp: '41m ago', read: true },
+    { id: 'a6', type: 'sentiment', severity: 'low', title: '■ News Sentiment: ETH', description: 'ETH news sentiment trending positive — 73% bullish across 140 sources', timestamp: '1h ago', read: true },
+    { id: 'a7', type: 'manipulation', severity: 'critical', title: '⚠ Coordinated Pump Detected: US30m', description: 'Multiple broker feeds showing 2-pip discrepancies suggesting coordinated manipulation', timestamp: '1.5h ago', read: true },
+    { id: 'a8', type: 'signal', severity: 'low', title: '◎ Bot Milestone Reached', description: 'XMX-QUANTUM bot completed 250 trades — ML model retraining triggered', timestamp: '2h ago', read: true },
   ];
   return alerts;
 }

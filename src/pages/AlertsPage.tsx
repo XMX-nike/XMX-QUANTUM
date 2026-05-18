@@ -2,10 +2,9 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bell, Filter, Trash2, CheckCheck } from 'lucide-react';
 import { useTrading } from '../context/TradingContext';
-import type { Alert } from '../data/mockData';
 
 const TYPE_ICONS: Record<string, string> = {
-  sentiment: '📊', whale: '🐋', manipulation: '⚠️', signal: '🎯',
+  sentiment: '■', whale: '◆', manipulation: '⚠', signal: '◎',
 };
 
 const AlertsPage: React.FC = () => {
@@ -42,14 +41,14 @@ const AlertsPage: React.FC = () => {
       {/* Filters */}
       <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
         <Filter size={14} color="var(--text-muted)" />
-        <select className="form-input" style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem', width: 'auto' }} value={filterType} onChange={e => setFilterType(e.target.value)}>
+        <select className="form-input" style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem', flex: '1 1 130px', minWidth: 130 }} value={filterType} onChange={e => setFilterType(e.target.value)}>
           <option value="All">All Types</option>
           <option value="sentiment">Sentiment</option>
           <option value="whale">Whale Activity</option>
           <option value="manipulation">Manipulation</option>
           <option value="signal">Signal</option>
         </select>
-        <select className="form-input" style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem', width: 'auto' }} value={filterSeverity} onChange={e => setFilterSeverity(e.target.value)}>
+        <select className="form-input" style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem', flex: '1 1 130px', minWidth: 130 }} value={filterSeverity} onChange={e => setFilterSeverity(e.target.value)}>
           <option value="All">All Severities</option>
           <option value="low">Low</option>
           <option value="medium">Medium</option>

@@ -135,8 +135,8 @@ const AnalyticsPage: React.FC = () => {
       <div className="charts-grid-2" style={{ marginBottom: '1rem' }}>
         <motion.div className="card" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
           <div className="section-header"><div className="section-title">Trade Distribution by Symbol</div></div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <ResponsiveContainer width="60%" height={200}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+            <ResponsiveContainer width="60%" height={200} minWidth={180}>
               <PieChart>
                 <Pie data={TRADE_DIST} cx="50%" cy="50%" outerRadius={80} dataKey="value" stroke="none">
                   {TRADE_DIST.map((entry, i) => <Cell key={i} fill={entry.fill} />)}

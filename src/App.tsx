@@ -6,6 +6,7 @@ import AppLayout from './layouts/AppLayout';
 // Pages
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
+import SignUpPage from './pages/SignUpPage';
 import DashboardPage from './pages/DashboardPage';
 import PositionsPage from './pages/PositionsPage';
 import SignalsPage from './pages/SignalsPage';
@@ -32,6 +33,7 @@ const App: React.FC = () => {
           {/* Public routes */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignUpPage />} />
           <Route path="/performance/:username" element={<PublicPerformancePage />} />
 
           {/* Authenticated app routes */}

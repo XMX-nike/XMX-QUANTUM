@@ -5,10 +5,10 @@ import { useTrading } from '../context/TradingContext';
 import { SYMBOLS } from '../data/mockData';
 
 const BOT_MODES = [
-  { id: 'manual', label: 'Manual', desc: 'You control every trade. Bot provides signals only.', icon: '🎯' },
-  { id: 'plug', label: 'Plug & Play', desc: 'Fully automated. Bot opens and closes trades 24/7.', icon: '🤖' },
-  { id: 'pool', label: 'Pool Trading', desc: 'Capital pooled across multiple instruments.', icon: '🌊' },
-  { id: 'recovery', label: 'Recovery Mode', desc: 'Aggressive recovery after drawdown periods.', icon: '🔄' },
+  { id: 'manual', label: 'Manual', desc: 'You control every trade. Bot provides signals only.', icon: '◎' },
+  { id: 'plug', label: 'Plug & Play', desc: 'Fully automated. Bot opens and closes trades 24/7.', icon: '⬡' },
+  { id: 'pool', label: 'Pool Trading', desc: 'Capital pooled across multiple instruments.', icon: '◈' },
+  { id: 'recovery', label: 'Recovery Mode', desc: 'Aggressive recovery after drawdown periods.', icon: '↺' },
 ];
 
 const RISK_LEVELS = ['Low', 'Medium', 'High'];

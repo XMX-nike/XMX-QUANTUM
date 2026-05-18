@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, Activity, Zap, BarChart3, Bot, Bell,
@@ -9,6 +9,7 @@ import {
 import { useTrading } from '../context/TradingContext';
 import TopBar from './TopBar';
 import QuickTrade from './QuickTrade';
+import LogoIcon from '../components/LogoIcon';
 
 const NAV_ITEMS = [
   { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -37,8 +38,6 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
   const [showQuickTrade, setShowQuickTrade] = useState(false);
   const { unreadAlerts } = useTrading();
-  const location = useLocation();
-
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-primary)' }}>
       {/* Desktop Sidebar */}
@@ -59,11 +58,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       >
         {/* Logo */}
         <div style={{ padding: '1rem', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '0.75rem', minHeight: 60 }}>
-          <div style={{
-            width: 36, height: 36, background: 'linear-gradient(135deg, var(--cyan), #0066cc)',
-            borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontWeight: 900, fontSize: '0.8rem', color: '#000', flexShrink: 0
-          }}>XQ</div>
+          <LogoIcon size={36} />
           <AnimatePresence>
             {!collapsed && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
@@ -134,9 +129,12 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         display: 'flex', flexDirection: 'column',
         transition: 'margin-left 0.3s',
         minHeight: '100vh',
+        minWidth: 0,
+        maxWidth: 'calc(100vw - ' + (collapsed ? '64px' : '220px') + ')',
+        overflowX: 'hidden',
       }} className="main-area">
         <TopBar />
-        <main style={{ flex: 1, overflowY: 'auto', paddingBottom: '1rem' }}>
+        <main style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', paddingBottom: '1rem', width: '100%', minWidth: 0, boxSizing: 'border-box' }}>
           {children}
         </main>
       </div>

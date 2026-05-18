@@ -64,26 +64,26 @@ const TradeJournalPage: React.FC = () => {
       </div>
 
       {/* Filters */}
-      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', padding: '0 0.25rem' }}>
         <Filter size={14} color="var(--text-muted)" />
-        <select className="form-input" style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem', width: 'auto' }} value={filterSym} onChange={e => setFilterSym(e.target.value)}>
+        <select className="form-input" style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem', minWidth: 120, flex: '1 1 120px' }} value={filterSym} onChange={e => setFilterSym(e.target.value)}>
           <option value="All">All Symbols</option>
           {SYMBOLS.map(s => <option key={s} value={s}>{s}</option>)}
         </select>
-        <select className="form-input" style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem', width: 'auto' }} value={filterDir} onChange={e => setFilterDir(e.target.value)}>
+        <select className="form-input" style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem', minWidth: 100, flex: '1 1 100px' }} value={filterDir} onChange={e => setFilterDir(e.target.value)}>
           <option value="All">All Directions</option>
           <option value="BUY">BUY</option>
           <option value="SELL">SELL</option>
         </select>
-        <input type="date" className="form-input" style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem', width: 'auto' }} value={filterFrom} onChange={e => setFilterFrom(e.target.value)} />
+        <input type="date" className="form-input" style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem', flex: '1 1 130px', minWidth: 130 }} value={filterFrom} onChange={e => setFilterFrom(e.target.value)} />
         <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>to</span>
-        <input type="date" className="form-input" style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem', width: 'auto' }} value={filterTo} onChange={e => setFilterTo(e.target.value)} />
+        <input type="date" className="form-input" style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem', flex: '1 1 130px', minWidth: 130 }} value={filterTo} onChange={e => setFilterTo(e.target.value)} />
       </div>
 
       {/* Table */}
       <motion.div className="card" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} style={{ padding: 0 }}>
         <div className="table-wrapper" style={{ border: 'none', borderRadius: 12 }}>
-          <table>
+          <table className="mobile-card-table">
             <thead>
               <tr>
                 <th>Date</th><th>Symbol</th><th>Dir</th><th>Entry</th><th>Exit</th>
@@ -93,19 +93,19 @@ const TradeJournalPage: React.FC = () => {
             <tbody>
               {filtered.map(t => (
                 <tr key={t.id}>
-                  <td style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{t.date}</td>
-                  <td><span style={{ fontWeight: 700, fontFamily: 'var(--font-mono)', fontSize: '0.82rem' }}>{t.symbol}</span></td>
-                  <td><span className={`badge badge-${t.direction.toLowerCase()}`}>{t.direction}</span></td>
-                  <td style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem' }}>{t.entry.toLocaleString()}</td>
-                  <td style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem' }}>{t.exit.toLocaleString()}</td>
-                  <td>
+                  <td data-label="Date" style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{t.date}</td>
+                  <td data-label="Symbol"><span style={{ fontWeight: 700, fontFamily: 'var(--font-mono)', fontSize: '0.82rem' }}>{t.symbol}</span></td>
+                  <td data-label="Direction"><span className={`badge badge-${t.direction.toLowerCase()}`}>{t.direction}</span></td>
+                  <td data-label="Entry" style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem' }}>{t.entry.toLocaleString()}</td>
+                  <td data-label="Exit" style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem' }}>{t.exit.toLocaleString()}</td>
+                  <td data-label="P&L">
                     <span style={{ fontWeight: 700, fontFamily: 'var(--font-mono)', color: t.pnl >= 0 ? 'var(--green)' : 'var(--red)', fontSize: '0.88rem' }}>
                       {t.pnl >= 0 ? '+' : ''}${t.pnl.toFixed(2)}
                     </span>
                   </td>
-                  <td style={{ fontSize: '0.78rem', color: 'var(--cyan)' }}>{t.strategy}</td>
-                  <td style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{t.duration}</td>
-                  <td style={{ fontSize: '0.75rem', color: 'var(--text-muted)', maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.notes || '—'}</td>
+                  <td data-label="Strategy" style={{ fontSize: '0.78rem', color: 'var(--cyan)' }}>{t.strategy}</td>
+                  <td data-label="Duration" style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{t.duration}</td>
+                  <td data-label="Notes" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.notes || '—'}</td>
                   <td>
                     {t.tags.map(tag => (
                       <span key={tag} style={{ background: 'var(--cyan-dim)', color: 'var(--cyan)', fontSize: '0.65rem', fontWeight: 600, padding: '0.1rem 0.4rem', borderRadius: 4, marginRight: 2 }}>{tag}</span>

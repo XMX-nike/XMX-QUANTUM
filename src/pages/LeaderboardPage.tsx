@@ -26,7 +26,7 @@ const LeaderboardPage: React.FC = () => {
       </div>
 
       {/* Top 3 Podium */}
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', alignItems: 'flex-end', marginBottom: '2rem', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', alignItems: 'flex-end', marginBottom: '2rem', flexWrap: 'wrap', padding: '0 1rem' }}>
         {[LEADERBOARD[1], LEADERBOARD[0], LEADERBOARD[2]].map((entry, i) => {
           const actualRank = i === 0 ? 1 : i === 1 ? 0 : 2;
           const heights = [160, 200, 140];
@@ -36,6 +36,7 @@ const LeaderboardPage: React.FC = () => {
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: actualRank * 0.12, type: 'spring', stiffness: 100 }}
+              className={`podium-card ${i === 1 ? 'first' : i === 0 ? 'second' : 'third'}`}
               style={{
                 width: 160,
                 height: heights[i],
@@ -72,7 +73,7 @@ const LeaderboardPage: React.FC = () => {
           <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginLeft: 'auto' }}>May 2026 · {LEADERBOARD.length} participants</span>
         </div>
         <div className="table-wrapper" style={{ border: 'none', borderRadius: 0 }}>
-          <table>
+          <table className="mobile-card-table">
             <thead>
               <tr>
                 <th>Rank</th>
@@ -92,7 +93,7 @@ const LeaderboardPage: React.FC = () => {
                   transition={{ delay: 0.4 + i * 0.04 }}
                   style={{ background: i < 3 ? `${MEDAL_COLORS[i]}08` : 'transparent' }}
                 >
-                  <td>
+                  <td data-label="Rank">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       {i < 3 ? (
                         <span style={{ fontSize: '1.1rem' }}>{MEDAL_EMOJIS[i]}</span>
@@ -101,7 +102,7 @@ const LeaderboardPage: React.FC = () => {
                       )}
                     </div>
                   </td>
-                  <td>
+                  <td data-label="Trader">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                       <div style={{
                         width: 30, height: 30, borderRadius: '50%',
@@ -116,22 +117,22 @@ const LeaderboardPage: React.FC = () => {
                       </span>
                     </div>
                   </td>
-                  <td>
+                  <td data-label="Monthly Return">
                     <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 800, color: 'var(--green)', fontSize: '0.95rem' }}>
                       +{entry.monthlyReturn}%
                     </span>
                   </td>
-                  <td style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                  <td data-label="Total Trades" style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
                     {entry.totalTrades}
                   </td>
-                  <td>
-                    <div style={{ display: 'flex', align: 'center', gap: '0.5rem' }}>
+                  <td data-label="Win Rate">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, color: entry.winRate >= 70 ? 'var(--green)' : 'var(--cyan)' }}>
                         {entry.winRate}%
                       </span>
                     </div>
                   </td>
-                  <td style={{ fontFamily: 'var(--font-mono)', color: 'var(--cyan)', fontSize: '0.85rem' }}>
+                  <td data-label="Equity" style={{ fontFamily: 'var(--font-mono)', color: 'var(--cyan)', fontSize: '0.85rem' }}>
                     ${entry.equity.toLocaleString()}
                   </td>
                 </motion.tr>

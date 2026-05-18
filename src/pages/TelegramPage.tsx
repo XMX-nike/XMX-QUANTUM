@@ -3,19 +3,19 @@ import { motion } from 'framer-motion';
 import { Send, CheckCircle, Copy, Users } from 'lucide-react';
 import { SUMMARY_STATS } from '../data/mockData';
 
-const SIGNAL_PREVIEW = `🤖 *XMX-QUANTUM Signal*
+const SIGNAL_PREVIEW = `[XQ] *XMX-QUANTUM Signal*
 ━━━━━━━━━━━━━━━━
-📊 Symbol: *XAUUSDm*
-📈 Direction: *BUY*
-⏱ Timeframe: *H1*
-🎯 Confidence: *84%*
-🛡 Strategy: *EMA Crossover*
+■ Symbol: *XAUUSDm*
+▲ Direction: *BUY*
+◆ Timeframe: *H1*
+◎ Confidence: *84%*
+□ Strategy: *EMA Crossover*
 ━━━━━━━━━━━━━━━━
-💰 Entry: 2387.45
-🔴 SL: 2373.00
-🟢 TP: 2415.00
+$ Entry: 2387.45
+↓ SL: 2373.00
+↑ TP: 2415.00
 ━━━━━━━━━━━━━━━━
-⚡ Powered by XMX-QUANTUM`;
+▶ Powered by XMX-QUANTUM`;
 
 const TelegramPage: React.FC = () => {
   const [enabled, setEnabled] = useState(true);
@@ -91,7 +91,7 @@ const TelegramPage: React.FC = () => {
                   placeholder="@yourchannel or -1001234567890"
                 />
               </div>
-              <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                 <motion.button
                   className="btn btn-cyan"
                   style={{ flex: 1, justifyContent: 'center' }}

@@ -58,7 +58,7 @@ const PublicPerformancePage: React.FC = () => {
             { label: 'Win Rate', value: `${SUMMARY_STATS.winRate}%`, color: 'var(--cyan)', icon: Award },
             { label: 'Best Trade', value: `+$${bestTrade}`, color: 'var(--green)', icon: TrendingUp },
             { label: 'Worst Trade', value: `$${worstTrade}`, color: 'var(--red)', icon: TrendingUp },
-            { label: 'Current Streak', value: `${currentStreak}W 🔥`, color: 'var(--orange)', icon: Award },
+            { label: 'Current Streak', value: `${currentStreak}W ▲`, color: 'var(--orange)', icon: Award },
             { label: 'Total Trades', value: SUMMARY_STATS.totalTrades.toString(), color: 'var(--text-primary)', icon: Award },
           ].map(({ label, value, color, icon: Icon }, i) => (
             <motion.div key={label} className="stat-card" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}>
@@ -103,7 +103,7 @@ const PublicPerformancePage: React.FC = () => {
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
           style={{ textAlign: 'center', padding: '1.5rem', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)' }}>
           <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
-            📊 Powered by <span style={{ color: 'var(--cyan)', fontWeight: 700 }}>XMX-QUANTUM</span> — AI Trading Terminal by Quaxix Technologies
+            ■ Powered by <span style={{ color: 'var(--cyan)', fontWeight: 700 }}>XMX-QUANTUM</span> — AI Trading Terminal by Quaxix Technologies
           </div>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
             {['Twitter/X', 'Telegram', 'Discord', 'WhatsApp'].map(platform => (
