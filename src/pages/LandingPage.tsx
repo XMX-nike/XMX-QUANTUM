@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -10,12 +10,6 @@ import {
 import { useTrading } from '../context/TradingContext';
 import LogoIcon from '../components/LogoIcon';
 import ParticleBackground from '../components/ParticleBackground';
-
-// Lazy-load 3D hero (heavy Three.js bundle) — only on desktop
-const HolographicHero = lazy(() => import('../components/HolographicHero'));
-
-// Detect mobile once at module level
-const IS_MOBILE = typeof window !== 'undefined' && window.innerWidth < 768;
 
 // ─── Typewriter Hook ───────────────────────────────────────────────────────────
 const PHRASES = [
@@ -115,18 +109,16 @@ export default function LandingPage() {
   const [annual, setAnnual] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [activeFeature, setActiveFeature] = useState(0);
-  // Only run typewriter on mobile (desktop uses 3D hero)
-  const typewriterText = useTypewriter(IS_MOBILE ? PHRASES : []);
+  const typewriterText = useTypewriter(PHRASES);
 
   const scrollTo = useCallback((id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
     setMobileMenuOpen(false);
   }, []);
 
-  // Animated gradient hue shift for mobile typewriter text
+  // Animated gradient hue shift for typewriter text
   const [hue, setHue] = useState(0);
   useEffect(() => {
-    if (!IS_MOBILE) return;
     const interval = setInterval(() => setHue(h => (h + 0.5) % 360), 100);
     return () => clearInterval(interval);
   }, []);
@@ -310,43 +302,25 @@ export default function LandingPage() {
             }}>
               XMX-QUANTUM —
             </h1>
-
-            {/* Desktop: 3D holographic text | Mobile: typewriter fallback */}
-            {IS_MOBILE ? (
-              <h1 style={{
-                fontSize: 'clamp(1.8rem, 5vw, 4.5rem)',
-                fontWeight: 900,
-                letterSpacing: '-0.03em',
-                lineHeight: 1.1,
-                minHeight: '1.2em',
-                fontFamily: "'Space Grotesk', 'Inter', sans-serif",
-                background: `linear-gradient(${90 + hue * 0.1}deg, #00d4ff, #a855f7)`,
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}>
-                {typewriterText}
-                <span style={{
-                  display: 'inline-block', width: 3, height: '0.85em',
-                  background: '#00d4ff', marginLeft: 2, verticalAlign: 'middle',
-                  animation: 'cursor-blink 500ms step-end infinite',
-                }} />
-              </h1>
-            ) : (
-              <Suspense fallback={
-                <div style={{ height: 220, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-                  {[0,1,2].map(i => (
-                    <div key={i} style={{
-                      width: 8, height: 8, borderRadius: '50%',
-                      background: 'linear-gradient(135deg, #00d4ff, #a855f7)',
-                      animation: `dot-pulse 1.2s ease-in-out ${i * 0.2}s infinite`,
-                    }} />
-                  ))}
-                </div>
-              }>
-                <HolographicHero darkMode={darkMode} height={220} />
-              </Suspense>
-            )}
+            <h1 style={{
+              fontSize: 'clamp(2rem, 5vw, 4.5rem)',
+              fontWeight: 900,
+              letterSpacing: '-0.03em',
+              lineHeight: 1.1,
+              minHeight: '1.2em',
+              fontFamily: "'Space Grotesk', 'Inter', sans-serif",
+              background: `linear-gradient(${90 + hue * 0.1}deg, #00d4ff, #a855f7)`,
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}>
+              {typewriterText}
+              <span style={{
+                display: 'inline-block', width: 3, height: '0.85em',
+                background: '#00d4ff', marginLeft: 2, verticalAlign: 'middle',
+                animation: 'cursor-blink 500ms step-end infinite',
+              }} />
+            </h1>
           </motion.div>
 
           {/* Subtitle */}
